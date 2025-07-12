@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Details – Scanalyze</title>
+  <link rel="stylesheet" href="../css/product.css"/>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">Scanalyze</div>
+    <nav class="nav-links">
+      <a href="home-page.html">Home</a>
+      <a href="#">Browse</a>
+      <a href="#">Settings</a>
+    </nav>
+  </header>
+
+  <main class="product-container">
+    <img id="product-img" src="" alt="Product Image"/>
+    <h1 id="product-name">Loading…</h1>
+    <p id="product-brand"></p>
+
+    <!-- Numeric rating block -->
+    <div id="rating-score" class="rating-score"></div>
+
+    <div class="nutrition-table">
+      <h2>Nutritional Information (per 100g/ml)</h2>
+      <table>
+        <tr><th>Energy (kcal)</th><td id="nutr-energy">–</td></tr>
+        <tr><th>Fat (g)</th><td id="nutr-fat">–</td></tr>
+        <tr><th>Sugars (g)</th><td id="nutr-sugars">–</td></tr>
+        <tr><th>Salt (g)</th><td id="nutr-salt">–</td></tr>
+      </table>
+    </div>
+
+    <div class="product-meta">
+      <p><strong>Quantity:</strong> <span id="quantity">–</span></p>
+      <p><strong>Categories:</strong> <span id="categories">–</span></p>
+      <p><strong>Ingredients:</strong></p>
+      <p id="ingredients"></p>
+
+      <div id="allergens-container" class="allergens-container">
+        <p><strong>Allergens:</strong> <span id="allergens">–</span></p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Scanalyze. All rights reserved.
+  </footer>
+
+  <script type="module" src="../js/product.js"></script>
+</body>
+</html>

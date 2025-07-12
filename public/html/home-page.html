@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scanalyze</title>
+
+  <!-- ✅ Use absolute path for CSS -->
+  <link rel="stylesheet" href="/css/home-page-style.css" />
+  
+  <link rel="icon" href="/images/favicon.ico" />
+  <link rel="preconnect" href="https://world.openfoodfacts.org" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">Scanalyze</div>
+    <nav class="nav-links">
+      <a href="#">Scan Product</a>
+      <a href="#">Browse Ratings</a>
+      <a href="#">My Profile</a>
+      <a href="#">About</a>
+    </nav>
+    <div class="search-container">
+      <input type="text" placeholder="Search Packaged Foods" class="search-input" />
+      <button class="search-button" aria-label="Search">🔍</button>
+    </div>
+    <div class="auth-buttons">
+      <button class="signup-btn">Sign up</button>
+      <button class="login-btn">Log in</button>
+    </div>
+  </header>
+
+  <!-- Scan banner -->
+  <section class="scanalyze-banner">
+    <div class="banner-content">
+      <h2>Want to know what's in your Food?</h2>
+      <div class="banner-row">
+        <span class="text-left">Scanalyze</span>
+        <label class="scan-btn" for="barcode-file">
+          <img src="/images/scanner simple barcode blue-purp.webp" alt="Upload Barcode" />
+        </label>
+        <input type="file" id="barcode-file" accept="image/*" style="display:none" />
+        <span class="text-right">it!</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search results -->
+  <main>
+    <div id="search-results"></div>
+  </main>
+
+  <!-- Carousel -->
+  <div class="carousel">
+    <div class="slides">
+      <img src="/images/red.jpg" alt="Slide 1" />
+      <img src="/images/yellow.jpg" alt="Slide 2" />
+      <img src="/images/green.webp" alt="Slide 3"/>
+    </div>
+    <button class="arrow prev">&#10094;</button>
+    <button class="arrow next">&#10095;</button>
+  </div>
+
+  <!-- Categories -->
+  <section class="categories">
+    <h2>All Categories</h2>
+    <div class="category-grid">
+      <div class="category-item" onclick="searchCategory('biscuits')">
+        <img src="/images/red.jpg" alt="Biscuits"><span>Biscuits</span>
+      </div>
+      <div class="category-item" onclick="searchCategory('breakfast spreads')">
+        <img src="/images/yellow.jpg" alt="Breakfast"><span>Breakfast & Spreads</span>
+      </div>
+      <div class="category-item" onclick="searchCategory('chocolates')">
+        <img src="/images/green.webp" alt="Chocolates"><span>Chocolates & Desserts</span>
+      </div>
+      <div class="category-item" onclick="searchCategory('cold drinks juices')">
+        <img src="/images/red.jpg" alt="Cold Drinks"><span>Cold Drinks & Juices</span>
+      </div>
+      <div class="category-item" onclick="searchCategory('dairy bread eggs')">
+        <img src="/images/green.webp" alt="Dairy"><span>Dairy, Bread & Eggs</span>
+      </div>
+      <div class="category-item" onclick="searchCategory('instant food')">
+        <img src="/images/yellow.jpg" alt="Instant Food"><span>Instant Food</span>
+      </div>
+      <div class="category-item" onclick="searchCategory('munchies')">
+        <img src="/images/red.jpg" alt="Munchies"><span>Munchies</span>
+      </div>
+      <div class="category-item" onclick="searchCategory('cakes bakes')">
+        <img src="/images/yellow.jpg" alt="Cakes"><span>Cakes & Bakes</span>
+      </div>
+      <div class="category-item" onclick="searchCategory('rice atta dals')">
+        <img src="/images/green.webp" alt="Rice"><span>Rice, Atta & Dals</span>
+      </div>
+      <div class="category-item" onclick="searchCategory('oil masalas')">
+        <img src="/images/red.jpg" alt="Oil"><span>Oil & Masalas</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Correct JS path -->
+  <script type="module" src="/js/script.js"></script>
+</body>
+</html>
