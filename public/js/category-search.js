@@ -3,7 +3,7 @@ const title = document.getElementById('category-title');
 
 const categoryMap = {
   'biscuits': 'biscuits',
-  'breakfast spreads': 'breakfast-spreads',
+  'frozen foods': 'frozen-foods',
   'chocolates': 'chocolates',
   'cold drinks juices': 'non-alcoholic-beverages',
   'dairy bread eggs': 'dairies',
@@ -14,20 +14,22 @@ const categoryMap = {
   'oil masalas': 'culinary-oils'
 };
 
-// Get category from URL
+// Normalize category key from URL
 const params = new URLSearchParams(window.location.search);
 const categoryKey = params.get('category');
+const normalizedKey = categoryKey?.toLowerCase();
 
-if (!categoryKey || !categoryMap[categoryKey.toLowerCase()]) {
+if (!normalizedKey || !categoryMap[normalizedKey]) {
   resultsContainer.innerHTML = '<p>Invalid or unknown category.</p>';
 } else {
-  const readableTitle = categoryKey
+  // Set readable title
+  const readableTitle = normalizedKey
     .split(' ')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
   title.textContent = readableTitle;
 
-  const categorySlug = categoryMap[categoryKey.toLowerCase()];
+  const categorySlug = categoryMap[normalizedKey];
   performSearch(categorySlug);
 }
 
@@ -35,8 +37,10 @@ async function performSearch(categorySlug) {
   resultsContainer.innerHTML = '<p style="font-style: italic; color: gray;">Searching…</p>';
 
   try {
-    const url = `http://localhost:3000/api/category/${encodeURIComponent(categorySlug)}`;
+    const url = `${window.location.origin}/api/category/${encodeURIComponent(categorySlug)}`;
     const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch category data');
+
     const data = await res.json();
 
     if (!data.products || data.products.length === 0) {
@@ -45,11 +49,14 @@ async function performSearch(categorySlug) {
     }
 
     resultsContainer.innerHTML = '';
+
     data.products.slice(0, 20).forEach(prod => {
       const card = document.createElement('div');
       card.className = 'result-card';
       card.innerHTML = `
-        <img src="${prod.image_front_thumb_url || 'https://via.placeholder.com/150'}" alt="${prod.product_name || 'Product'}">
+        <img src="${prod.image_front_thumb_url || 'https://via.placeholder.com/150'}" 
+             alt="${prod.product_name || 'Product'}"
+             onerror="this.src='https://via.placeholder.com/150'" />
         <h4>${prod.product_name || 'Unnamed'}</h4>
         <p>${prod.brands || 'Unknown brand'}</p>
       `;
@@ -64,6 +71,6 @@ async function performSearch(categorySlug) {
     });
   } catch (err) {
     console.error(err);
-    resultsContainer.innerHTML = '<p>Error fetching data.</p>';
+    resultsContainer.innerHTML = '<p>Error fetching data. Please try again later.</p>';
   }
 }

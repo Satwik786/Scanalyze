@@ -11,10 +11,12 @@ app.use(cors());
 // ✅ Serve static files from /public (css, js, html, images)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ Category API route
+// ✅ Category API route (fetch Indian products from a category)
 app.get('/api/category/:slug', async (req, res) => {
   const { slug } = req.params;
-  const url = `https://world.openfoodfacts.org/category/${encodeURIComponent(slug)}.json`;
+
+  // Correct URL using Open Food Facts' advanced search with category + country
+  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=&tagtype_0=categories&tag_contains_0=contains&tag_0=${encodeURIComponent(slug)}&tagtype_1=countries&tag_contains_1=contains&tag_1=india&json=1`;
 
   try {
     const response = await axios.get(url, {
@@ -22,7 +24,7 @@ app.get('/api/category/:slug', async (req, res) => {
     });
     res.json(response.data);
   } catch (error) {
-    console.error(error.message);
+    console.error('Category API error:', error.message);
     res.status(500).json({ error: 'Failed to fetch category data' });
   }
 });
@@ -38,7 +40,7 @@ app.get('/api/search', async (req, res) => {
     });
     res.json(response.data);
   } catch (error) {
-    console.error(error.message);
+    console.error('Search API error:', error.message);
     res.status(500).json({ error: 'Failed to perform search' });
   }
 });
@@ -54,22 +56,22 @@ app.get('/api/product/:code', async (req, res) => {
     });
     res.json(response.data);
   } catch (error) {
-    console.error(error.message);
+    console.error('Product API error:', error.message);
     res.status(500).json({ error: 'Failed to fetch product data' });
   }
 });
 
-// ✅ Optional: Serve login.html directly via route
+// ✅ Serve login.html directly via route
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'login.html'));
 });
 
-// ✅ Optional: Serve home-page.html directly via route
+// ✅ Serve home-page.html directly via route
 app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'home-page.html'));
 });
 
-// ✅ Fallback: Default route to login page (optional)
+// ✅ Fallback: Default route to login page
 app.get('/', (req, res) => {
   res.redirect('/html/login.html');
 });

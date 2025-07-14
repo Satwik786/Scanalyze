@@ -29,13 +29,13 @@ body {
 
 .nav-links a {
   color: white;
-  text-decoration: none;
-  margin-left: 1rem;
-  font-weight: 500;
+  font-size: 25px;
+  
 }
 
 .nav-links a:hover {
   text-decoration: underline;
+  color: rgb(83, 196, 237);
 }
 
 /* Product container */
@@ -50,7 +50,6 @@ body {
   text-align: center;
 }
 
-/* Product image */
 #product-img {
   width: 200px;
   height: auto;
@@ -58,24 +57,36 @@ body {
   border-radius: 0.5rem;
 }
 
-/* Product name */
 #product-name {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 0.3rem;
 }
 
-/* Brand */
 #product-brand {
   color: #666;
   margin-bottom: 1rem;
 }
 
-/* Numeric rating */
+/* Rating block */
 .rating-score {
   font-size: 1.4rem;
-  color: #f57c00;
   margin-bottom: 0.8rem;
+}
+
+.rating-red {
+  color: #d32f2f;
+  font-weight: bold;
+}
+
+.rating-orange {
+  color: #f57c00;
+  font-weight: bold;
+}
+
+.rating-green {
+  color: #388e3c;
+  font-weight: bold;
 }
 
 /* Nutrition table */
@@ -106,8 +117,65 @@ body {
   background-color: #f2f2f2;
   font-weight: 600;
 }
+.energy-cost {
+  margin-top: 2rem;
+  background-color: #f0f9ff;
+  padding: 1rem 1.5rem;
+  border-left: 5px solid #0077cc;
+  border-radius: 0.7rem;
+  font-size: 1rem;
+  text-align: left;
+}
 
-/* Product meta info */
+.burn-toggle {
+  font-size: 1rem;
+  background: none;
+  border: none;
+  color: #005a9c;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.burn-toggle:hover {
+  text-decoration: underline;
+}
+
+.energy-cost-details {
+  margin-top: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.energy-cost-details.hidden {
+  display: none;
+}
+
+.burn-context {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 0.8rem;
+}
+
+.energy-cost-details ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.energy-cost-details li {
+  margin-bottom: 0.4rem;
+  font-size: 1rem;
+}
+
+.burn-note {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #666;
+  margin-top: 1rem;
+}
+
+
 .product-meta {
   margin-top: 1.5rem;
   text-align: left;
@@ -117,7 +185,6 @@ body {
   margin: 0.3rem 0;
 }
 
-/* Footer */
 footer {
   text-align: center;
   padding: 1rem;

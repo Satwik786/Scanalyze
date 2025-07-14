@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <title>Product Details – Scanalyze</title>
   <link rel="stylesheet" href="../css/product.css"/>
 </head>
@@ -11,9 +12,7 @@
   <header class="header">
     <div class="logo">Scanalyze</div>
     <nav class="nav-links">
-      <a href="home-page.html">Home</a>
-      <a href="#">Browse</a>
-      <a href="#">Settings</a>
+      <a href="home-page.html"><i class="fas fa-home"></i></a>
     </nav>
   </header>
 
@@ -22,7 +21,6 @@
     <h1 id="product-name">Loading…</h1>
     <p id="product-brand"></p>
 
-    <!-- Numeric rating block -->
     <div id="rating-score" class="rating-score"></div>
 
     <div class="nutrition-table">
@@ -33,7 +31,30 @@
         <tr><th>Sugars (g)</th><td id="nutr-sugars">–</td></tr>
         <tr><th>Salt (g)</th><td id="nutr-salt">–</td></tr>
       </table>
+      <p id="nutr-note" class="note" style="color: gray; font-size: 0.9em;"></p>
     </div>
+
+   <div id="energy-cost" class="energy-cost">
+  <h3>
+    🔥 Energy Cost of Eating This 
+    <i id="burn-toggle" class="fas fa-info-circle" style="cursor: pointer; margin-left: 8px;" title="Click to see energy burn time"></i>
+  </h3>
+  
+  <div id="energy-cost-details" class="energy-cost-details hidden">
+    <p class="burn-context">
+      Want to burn it off? Here's how long it would take:
+    </p>
+    <ul>
+      <li>🚶 For Walking: <span id="burn-walk">–</span></li>
+      <li>🚴 For Cycling: <span id="burn-cycle">–</span></li>
+      <li>🏃 For Running: <span id="burn-run">–</span></li>
+    </ul>
+    <p class="burn-note">
+      Each activity burns off roughly the same amount of calories from this product.
+    </p>
+  </div>
+</div>
+
 
     <div class="product-meta">
       <p><strong>Quantity:</strong> <span id="quantity">–</span></p>
