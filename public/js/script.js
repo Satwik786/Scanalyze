@@ -61,17 +61,22 @@ imageInput?.addEventListener('change', async (e) => {
   };
 });
 
-searchButton?.addEventListener('click', async () => {
+searchButton?.addEventListener('click', () => {
   const q = searchInput.value.trim();
-  if (q) await performSearch(q);
-});
-
-searchInput?.addEventListener('keydown', async (e) => {
-  if (e.key === 'Enter') {
-    const q = searchInput.value.trim();
-    if (q) await performSearch(q);
+  if (q) {
+    window.location.href = `/html/search.html?query=${encodeURIComponent(q)}`;
   }
 });
+
+searchInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const q = searchInput.value.trim();
+    if (q) {
+      window.location.href = `/html/search.html?query=${encodeURIComponent(q)}`;
+    }
+  }
+});
+
 
 async function performSearch(query) {
   if (/^\d{8,14}$/.test(query)) {
