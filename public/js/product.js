@@ -4,26 +4,40 @@ function calculateIngredientScore(ingredientsText) {
   const text = ingredientsText.toLowerCase();
   let score = 5.0;
 
-  const healthy = ['oat', 'quinoa', 'whole grain', 'lentil', 'fruit', 'vegetable'];
-  const harmful = ['preservative', 'color', 'colour', 'flavouring', 'flavor', 'emulsifier', 'sweetener', '\\be\\d+\\b'];
-  const redFlags = ['sugar', 'salt', 'palm oil', 'flavour enhancer', 'msg', 'monosodium glutamate'];
+  const healthy = [
+    'whole grain', 'oat', 'quinoa', 'lentil', 'chickpea',
+    'brown rice', 'fruit', 'vegetable', 'dehydrated vegetable',
+    'garlic', 'onion', 'tomato'
+  ];
+
+  const redFlags = [
+    'sugar', 'glucose', 'fructose', 'corn syrup',
+    'palm oil', 'hydrogenated', 'msg',
+    'monosodium glutamate', 'maltodextrin', 'salt'
+  ];
+
+  const harmful = [
+    'preservative', 'color', 'colour', 'flavouring',
+    'flavor', 'emulsifier', 'sweetener', '\\be\\d+\\b', 'additive'
+  ];
 
   healthy.forEach(h => {
-    if (text.includes(h)) score += 0.2;
+    if (text.includes(h)) score += 0.25;
   });
 
   redFlags.forEach(f => {
     if (text.includes(f)) score -= 1.0;
   });
 
-  harmful.forEach(word => {
-    const regex = new RegExp(`\\b${word}\\w*\\b`, 'gi');
+  harmful.forEach(pattern => {
+    const regex = new RegExp(`\\b${pattern}\\w*\\b`, 'gi');
     const matches = text.match(regex) || [];
-    score -= 0.5 * matches.length;
+    score -= 0.6 * matches.length;
   });
 
   const separators = (ingredientsText.match(/[,;]/g) || []).length;
-  if (separators > 7) score -= 0.5;
+  if (separators >= 6) score -= 0.3;
+  if (separators >= 10) score -= 0.3;
 
   return Math.max(0.5, Math.min(score, 5.0));
 }
