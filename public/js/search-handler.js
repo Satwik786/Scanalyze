@@ -7,11 +7,11 @@ const categoryMap = {
   'chocolates': 'chocolates',
   'cold drinks juices': 'non-alcoholic-beverages',
   'dairy bread eggs': 'dairies',
-  'instant food': 'instant-meals',
+  'instant food': 'instant-noodles',
   'munchies': 'salty-snacks',
   'cakes bakes': 'cakes',
   'rice atta dals': 'rice',
-  'oil masalas': 'culinary-oils'
+  'spices': 'spices'
 };
 
 const params = new URLSearchParams(window.location.search);

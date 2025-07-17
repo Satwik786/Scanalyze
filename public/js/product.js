@@ -51,6 +51,12 @@ function toggleEnergyCost() {
   details.classList.toggle('hidden');
 }
 
+function showNoRating() {
+  const ratingContainer = document.getElementById('rating-score');
+  ratingContainer.innerHTML = `<strong>Rating:</strong> N/A`;
+  ratingContainer.classList.remove('rating-red', 'rating-orange', 'rating-green');
+}
+
 async function loadProduct() {
   const params = new URLSearchParams(location.search);
   const code = params.get('code');
@@ -73,6 +79,7 @@ async function loadProduct() {
     }
 
     const p = json.product;
+    const ratingContainer = document.getElementById('rating-score');
 
     document.getElementById('product-img').src = p.image_front_url || 'https://via.placeholder.com/200';
     productNameEl.textContent = p.product_name || 'Unnamed';
@@ -89,12 +96,12 @@ async function loadProduct() {
     const nutrNoteEl = document.getElementById('nutr-note');
     const nutrValues = ['energy-kcal_100g', 'energy_100g', 'fat_100g', 'sugars_100g', 'salt_100g'];
     const hasAnyNutrition = nutrValues.some(key => n[key] !== undefined);
-    if (!hasAnyNutrition) {
-      nutrNoteEl.textContent = 'Nutritional data is unavailable for this product.';
-    }
 
     const ingredients = p.ingredients_text || '';
-    const ratingContainer = document.getElementById('rating-score');
+    if (!ingredients.trim() || (!hasAnyNutrition && !ingredients.trim())) {
+      nutrNoteEl.textContent = 'N/A – This product has not been rated due to either insufficient nutritional data or missing ingredient information.';
+    }
+
 
     document.getElementById('ingredients').textContent = ingredients || '–';
     document.getElementById('quantity').textContent = p.quantity || '–';
@@ -116,10 +123,11 @@ async function loadProduct() {
 
     // Ingredient Rating
     if (!ingredients.trim()) {
-      ratingContainer.style.display = 'none';
+      showNoRating();
     } else {
       const score = calculateIngredientScore(ingredients);
       ratingContainer.classList.remove('rating-red', 'rating-orange', 'rating-green');
+      const infoIcon = `<i id="low-rating-toggle" class="fas fa-info-circle rating-info-icon" title="Why this rating?"></i>`;
 
       if (score < 2.0) {
         ratingContainer.classList.add('rating-red');
@@ -131,13 +139,23 @@ async function loadProduct() {
 
       ratingContainer.innerHTML = `
         <strong>Rating:</strong> ${score.toFixed(1)} / 5
+        ${score < 3.0 ? infoIcon : ''}
         <p class="rating-note">Rating based on ingredient analysis.</p>
       `;
+
+      if (score < 3.0) {
+        document.getElementById('low-rating-msg').classList.add('hidden');
+        setTimeout(() => {
+          const toggle = document.getElementById('low-rating-toggle');
+          toggle?.addEventListener('click', () => {
+            document.getElementById('low-rating-msg').classList.toggle('hidden');
+          });
+        }, 0);
+      }
     }
 
     // 🔥 Energy Cost
     const energyCostContainer = document.getElementById('energy-cost');
-    const energyDetails = document.getElementById('energy-cost-details');
 
     if (!kcal) {
       energyCostContainer.style.display = 'none';
@@ -164,8 +182,6 @@ async function loadProduct() {
   }
 }
 
-// Register event listener for energy toggle
 document.getElementById('burn-toggle')?.addEventListener('click', toggleEnergyCost);
 
-// Load product on page load
 loadProduct();
