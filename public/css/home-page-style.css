@@ -152,7 +152,7 @@ body {
     margin: 0;
   }
 }
-/* Carousel Styles - Full Width, Narrow Height */
+
 .carousel {
   position: relative;
   width: 100vw;
@@ -198,14 +198,6 @@ body {
   right: 20px;
 }
 
-/* Center the scan button horizontally */
-/* .scan-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem; 
-} */
-
-/* Style the circular scan button */
 .scanalyze-banner {
   background: #eafaff;
   padding: 50px 20px;
@@ -316,15 +308,6 @@ body {
   display: block;
   font-size: 14px;
   color: #1e293b;
-}
-
-#search-results {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  background: #f8f8f8;
-  padding: 20px;
-  gap: 15px;
 }
 
 /* Search Result Cards */
