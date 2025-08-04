@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Trigger click on Enter key press
   inputField.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       verifyBtn.click();
@@ -35,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!isValidInput(userInput)) {
       inputField.value = "";
-      inputField.placeholder = "Invalid input! Enter valid email or 10-digit phone.";
+      inputField.placeholder = "Enter valid email or 10-digit phone number.";
       inputField.classList.add("input-error");
       return;
     }

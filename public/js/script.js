@@ -3,6 +3,7 @@ const slides = document.querySelector('.slides');
 const images = document.querySelectorAll('.slides img');
 const prevBtn = document.querySelector('.prev');
 const nextBtn = document.querySelector('.next');
+const loginbtn = document.querySelector('.login-btn');
 
 let index = 0;
 let interval = setInterval(nextSlide, 4000);
@@ -124,3 +125,9 @@ async function performSearch(query) {
 window.searchCategory = function (categoryKey) {
   window.location.href = `/html/search.html?category=${encodeURIComponent(categoryKey)}`;
 };
+
+if (loginbtn) {
+  loginbtn.addEventListener('click', ()=> {
+    window.location.href = "/html/login.html";
+  })
+}
