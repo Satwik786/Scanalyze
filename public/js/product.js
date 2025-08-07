@@ -11,9 +11,9 @@ function calculateIngredientScore(ingredientsText) {
   ];
 
   const redFlags = [
-    'sugar', 'glucose', 'fructose', 'corn syrup',
-    'palm oil', 'hydrogenated', 'msg',
-    'monosodium glutamate', 'maltodextrin', 'salt'
+    '\\bsugar\\b', '\\bglucose\\b', '\\bfructose\\b', 'corn syrup',
+    'palm oil', 'hydrogenated', '\\bmsg\\b',
+    'monosodium glutamate', '\\bmaltodextrin\\b', '\\bsalt\\b'
   ];
 
   const harmful = [
@@ -25,8 +25,10 @@ function calculateIngredientScore(ingredientsText) {
     if (text.includes(h)) score += 0.25;
   });
 
-  redFlags.forEach(f => {
-    if (text.includes(f)) score -= 1.0;
+  redFlags.forEach(pattern => {
+    const regex = new RegExp(pattern, 'gi');
+    const matches = text.match(regex) || [];
+    score -= 1.0 * matches.length;
   });
 
   harmful.forEach(pattern => {
@@ -60,6 +62,7 @@ function showNoRating() {
 async function loadProduct() {
   const params = new URLSearchParams(location.search);
   const code = params.get('code');
+  const identifier = localStorage.getItem('identifier'); // ✅ Your user's email or phone
 
   if (!code) {
     document.body.innerHTML = '<p>Product code missing.</p>';
@@ -70,10 +73,10 @@ async function loadProduct() {
   productNameEl.textContent = 'Loading…';
 
   try {
-    const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
+    const res = await fetch(`/api/product/${code}?identifier=${encodeURIComponent(identifier || '')}`);
     const json = await res.json();
 
-    if (json.status === 0) {
+    if (!json.product) {
       document.body.innerHTML = '<p>Product not found.</p>';
       return;
     }
@@ -101,7 +104,6 @@ async function loadProduct() {
     if (!ingredients.trim() || (!hasAnyNutrition && !ingredients.trim())) {
       nutrNoteEl.textContent = 'N/A – This product has not been rated due to either insufficient nutritional data or missing ingredient information.';
     }
-
 
     document.getElementById('ingredients').textContent = ingredients || '–';
     document.getElementById('quantity').textContent = p.quantity || '–';
@@ -154,18 +156,27 @@ async function loadProduct() {
       }
     }
 
+    // ⚠️ Show Preferences-Based Warnings
+    const warningContainer = document.getElementById('preference-warning');
+    if (json.warnings && json.warnings.length > 0) {
+      warningContainer.innerHTML = `
+        <div class="warning-box">
+          <strong>Warning:</strong> This product contains ingredients you're sensitive to: 
+          <span class="warning-list">${json.warnings.join(', ')}</span>
+        </div>
+      `;
+    } else {
+      warningContainer.innerHTML = ''; // Clear if no warning
+    }
+
     // 🔥 Energy Cost
     const energyCostContainer = document.getElementById('energy-cost');
 
     if (!kcal) {
       energyCostContainer.style.display = 'none';
     } else {
-      const weight = 70; // kg
-      const met = {
-        walk: 3.5,
-        cycle: 7,
-        run: 9.8
-      };
+      const weight = 70;
+      const met = { walk: 3.5, cycle: 7, run: 9.8 };
 
       function calcBurnTime(metValue) {
         return Math.round((kcal * 60) / (metValue * weight));

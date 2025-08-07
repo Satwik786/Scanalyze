@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Preferences</title>
+  <link rel="stylesheet" href="/css/preferences.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Select Allergies / Sensitivities</h1>
+    <form id="prefsForm">
+      <label for="email-input">Email or Mobile:</label>
+      <input type="text" id="email-input" required>
+
+      <div class="preference-options">
+        <label><input type="checkbox" value="gluten"> Gluten</label>
+        <label><input type="checkbox" value="dairy"> Dairy</label>
+        <label><input type="checkbox" value="nuts"> Nuts</label>
+        <label><input type="checkbox" value="soy"> Soy</label>
+        <label><input type="checkbox" value="egg"> Egg</label>
+        <label><input type="checkbox" value="shellfish"> Shellfish</label>
+      </div>
+
+      <button type="submit">Save Preferences</button>
+    </form>
+
+    <div id="preference-warning"></div>
+    <div id="save-status"></div>
+  </div>
+
+  <script src="../js/preferences.js"></script>
+</body>
+</html>

@@ -1,4 +1,3 @@
-// public/js/login.js
 document.addEventListener("DOMContentLoaded", () => {
   const inputField = document.getElementById("inputField");
   const verifyBtn = document.querySelector(".verify-btn");
@@ -15,15 +14,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Validate email or phone
+  // ✅ Validate email or phone number
   function isValidInput(value) {
     const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
     const phonePattern = /^\d{10}$/;
     return emailPattern.test(value) || phonePattern.test(value);
   }
 
-  // Handle verify button click
-  verifyBtn.addEventListener("click", () => {
+  // 🔐 Handle Verify button click
+  verifyBtn.addEventListener("click", async () => {
     const userInput = inputField.value.trim();
 
     if (!userInput) {
@@ -43,18 +42,44 @@ document.addEventListener("DOMContentLoaded", () => {
     verifyBtn.disabled = true;
     verifyBtn.innerText = "Verifying...";
 
-    setTimeout(() => {
-      verifyBtn.innerText = "Verify & Continue";
-      verifyBtn.disabled = false;
-      // ✅ Correct path from root URL (served from /public)
-      window.location.href = "/html/home-page.html";
-    }, 1200);
+    try {
+      const response = await fetch("/api/preferences/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ identifier: userInput })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.user && data.user._id) {
+        console.log("✅ Login successful:", data);
+
+        // Save to localStorage
+        localStorage.setItem("userIdentifier", userInput); // email or phone
+        localStorage.setItem("userId", data.user._id);     // MongoDB _id
+
+        // Redirect to preferences page
+        window.location.href = "/html/preferences.html";
+      } else {
+        console.error("❌ Login failed:", data.error || "Unknown error");
+        inputField.value = "";
+        inputField.placeholder = "Login failed. Try again.";
+      }
+    } catch (err) {
+      console.error("⚠️ Request error:", err);
+      inputField.value = "";
+      inputField.placeholder = "Server error. Try again later.";
+    }
+
+    verifyBtn.disabled = false;
+    verifyBtn.innerText = "Verify & Continue";
   });
 
-  // Guest button
+  // 👤 Guest login button
   if (guestBtn) {
     guestBtn.addEventListener("click", () => {
-      // ✅ Same here
       window.location.href = "/html/home-page.html";
     });
   }
