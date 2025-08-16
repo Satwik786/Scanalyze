@@ -1,9 +1,21 @@
-// Carousel
+// 🔑 Import centralized auth handler
+import { handleAuthRedirect } from "./auth.js";
+
+// 🚀 Run auth check (home requires authentication)
+handleAuthRedirect(true);
+
+// --- Personalized Welcome Message ---
+const welcomeEl = document.getElementById("welcome-message");
+const userName = localStorage.getItem("userName") || "User";
+if (welcomeEl) welcomeEl.textContent = `Welcome, ${userName}!`;
+
+// --- Carousel ---
 const slides = document.querySelector('.slides');
 const images = document.querySelectorAll('.slides img');
 const prevBtn = document.querySelector('.prev');
 const nextBtn = document.querySelector('.next');
-const loginbtn = document.querySelector('.login-btn');
+const loginBtn = document.querySelector('.login-btn');
+const logoutBtn = document.querySelector('.logout-btn');
 
 let index = 0;
 let interval = setInterval(nextSlide, 4000);
@@ -12,33 +24,19 @@ function showSlide(i) {
   index = (i + images.length) % images.length;
   slides.style.transform = `translateX(${-index * 100}%)`;
 }
+function nextSlide() { showSlide(index + 1); }
+function prevSlide() { showSlide(index - 1); }
 
-function nextSlide() {
-  showSlide(index + 1);
-}
-
-function prevSlide() {
-  showSlide(index - 1);
-}
-
-nextBtn?.addEventListener('click', () => {
-  nextSlide();
-  resetInterval();
-});
-
-prevBtn?.addEventListener('click', () => {
-  prevSlide();
-  resetInterval();
-});
+nextBtn?.addEventListener('click', () => { nextSlide(); resetInterval(); });
+prevBtn?.addEventListener('click', () => { prevSlide(); resetInterval(); });
 
 function resetInterval() {
   clearInterval(interval);
   interval = setInterval(nextSlide, 3000);
 }
 
-// Barcode scanning & search
+// --- Barcode scanning & search ---
 import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm';
-
 const codeReader = new BrowserMultiFormatReader();
 const imageInput = document.getElementById('barcode-file');
 const searchInput = document.querySelector('.search-input');
@@ -64,20 +62,14 @@ imageInput?.addEventListener('change', async (e) => {
 
 searchButton?.addEventListener('click', () => {
   const q = searchInput.value.trim();
-  if (q) {
-    window.location.href = `/html/search.html?query=${encodeURIComponent(q)}`;
-  }
+  if (q) window.location.href = `/html/search.html?query=${encodeURIComponent(q)}`;
 });
-
 searchInput?.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     const q = searchInput.value.trim();
-    if (q) {
-      window.location.href = `/html/search.html?query=${encodeURIComponent(q)}`;
-    }
+    if (q) window.location.href = `/html/search.html?query=${encodeURIComponent(q)}`;
   }
 });
-
 
 async function performSearch(query) {
   if (/^\d{8,14}$/.test(query)) {
@@ -86,10 +78,8 @@ async function performSearch(query) {
   }
 
   resultsContainer.innerHTML = '<p style="font-style:italic;color:gray;">Searching…</p>';
-
   try {
-    const url = `/api/search?q=${encodeURIComponent(query)}`;
-    const res = await fetch(url);
+    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
     const data = await res.json();
 
     if (!data.products?.length) {
@@ -106,13 +96,11 @@ async function performSearch(query) {
         <h4>${prod.product_name || 'Unnamed'}</h4>
         <p>${prod.brands || 'Unknown brand'}</p>
       `;
-
       card.addEventListener('click', () => {
         if (prod.code) {
           window.location.href = `/html/product.html?code=${encodeURIComponent(prod.code)}`;
         }
       });
-
       resultsContainer.appendChild(card);
     });
   } catch (err) {
@@ -121,13 +109,40 @@ async function performSearch(query) {
   }
 }
 
-// Global for category card click
-window.searchCategory = function (categoryKey) {
+// --- Category search ---
+window.searchCategory = (categoryKey) => {
   window.location.href = `/html/search.html?category=${encodeURIComponent(categoryKey)}`;
 };
 
-if (loginbtn) {
-  loginbtn.addEventListener('click', ()=> {
-    window.location.href = "/html/login.html";
-  })
+// --- Login & Logout handling ---
+loginBtn?.addEventListener('click', () => {
+  localStorage.removeItem("guestMode");
+  window.location.href = "/html/login.html";
+});
+
+logoutBtn?.addEventListener('click', () => {
+  localStorage.removeItem("userIdentifier");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("prefsSaved");
+  localStorage.removeItem("userName"); // also clear the saved name
+  localStorage.removeItem("guestMode");
+  window.location.replace('/html/login.html');
+});
+
+// --- Toggle button visibility on page load ---
+function updateAuthButtons() {
+  const isLoggedIn = !!localStorage.getItem("userId");
+  const isGuest = !!localStorage.getItem("guestMode");
+
+  if (isLoggedIn) {
+    loginBtn?.style.setProperty("display", "none", "important");
+    logoutBtn?.style.removeProperty("display");
+  } else if (isGuest) {
+    logoutBtn?.style.setProperty("display", "none", "important");
+    loginBtn?.style.removeProperty("display");
+  } else {
+    logoutBtn?.style.setProperty("display", "none", "important");
+    loginBtn?.style.removeProperty("display");
+  }
 }
+updateAuthButtons();

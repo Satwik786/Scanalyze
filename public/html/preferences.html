@@ -7,11 +7,21 @@
 </head>
 <body>
   <div class="container">
-    <h1>Select Allergies / Sensitivities</h1>
-    <form id="prefsForm">
-      <label for="email-input">Email or Mobile:</label>
-      <input type="text" id="email-input" required>
+    <h1>Tell us about you</h1>
 
+    <!-- 👤 Name input -->
+    <div class="name-section">
+      <label for="userName"><strong>Your Name:</strong></label><br>
+      <input type="text" id="userName" placeholder="Enter your name" required>
+    </div>
+
+    <h2>Select Allergies / Sensitivities</h2>
+
+    <p>
+      Logged in as: <strong id="user-email" style="color: #007BFF;"></strong>
+    </p>
+
+    <form id="prefsForm">
       <div class="preference-options">
         <label><input type="checkbox" value="gluten"> Gluten</label>
         <label><input type="checkbox" value="dairy"> Dairy</label>

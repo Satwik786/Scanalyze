@@ -1,27 +1,29 @@
+// 🔑 Import centralized auth handler
+import { handleAuthRedirect } from "./auth.js";
+
+// 🚀 Run auth check (but allow login page if not authenticated)
+handleAuthRedirect(false);
+
 document.addEventListener("DOMContentLoaded", () => {
   const inputField = document.getElementById("inputField");
   const verifyBtn = document.querySelector(".verify-btn");
   const guestBtn = document.querySelector(".guest-btn");
 
   if (!inputField || !verifyBtn) {
-    console.error("Input field or verify button not found!");
+    console.error("⚠️ Input field or verify button not found!");
     return;
   }
 
   inputField.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      verifyBtn.click();
-    }
+    if (e.key === "Enter") verifyBtn.click();
   });
 
-  // ✅ Validate email or phone number
   function isValidInput(value) {
     const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
     const phonePattern = /^\d{10}$/;
     return emailPattern.test(value) || phonePattern.test(value);
   }
 
-  // 🔐 Handle Verify button click
   verifyBtn.addEventListener("click", async () => {
     const userInput = inputField.value.trim();
 
@@ -45,9 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const response = await fetch("/api/preferences/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier: userInput })
       });
 
@@ -56,12 +56,19 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response.ok && data.user && data.user._id) {
         console.log("✅ Login successful:", data);
 
-        // Save to localStorage
-        localStorage.setItem("userIdentifier", userInput); // email or phone
-        localStorage.setItem("userId", data.user._id);     // MongoDB _id
+        // Clear guest mode if they log in
+        localStorage.removeItem("guestMode");
 
-        // Redirect to preferences page
-        window.location.href = "/html/preferences.html";
+        localStorage.setItem("userIdentifier", userInput);
+        localStorage.setItem("userId", data.user._id);
+
+        if (data.prefsSaved) {
+          localStorage.setItem("prefsSaved", "true");
+          window.location.replace("/html/home-page.html");
+        } else {
+          localStorage.removeItem("prefsSaved");
+          window.location.replace("/html/preferences.html");
+        }
       } else {
         console.error("❌ Login failed:", data.error || "Unknown error");
         inputField.value = "";
@@ -77,10 +84,10 @@ document.addEventListener("DOMContentLoaded", () => {
     verifyBtn.innerText = "Verify & Continue";
   });
 
-  // 👤 Guest login button
-  if (guestBtn) {
-    guestBtn.addEventListener("click", () => {
-      window.location.href = "/html/home-page.html";
-    });
-  }
+  // 🟢 Guest Mode handler
+  guestBtn?.addEventListener("click", () => {
+    localStorage.clear();              // clear any previous user state
+    localStorage.setItem("guestMode", "true");
+    window.location.replace("/html/home-page.html");
+  });
 });

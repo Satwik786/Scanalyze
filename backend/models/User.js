@@ -14,7 +14,11 @@ const userSchema = new mongoose.Schema({
   identifier: {
     type: String,
     unique: true,
-    sparse: true // ✅ This ensures email or phone is treated as unique identifier
+    sparse: true // Ensures either email or phone is treated as unique identifier
+  },
+  name: {
+    type: String,
+    default: "" // Added name field for storing userName
   },
   preferences: {
     type: [String],

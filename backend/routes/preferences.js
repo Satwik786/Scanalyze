@@ -1,66 +1,96 @@
-const express = require('express');
+import express from "express";
+import User from "../models/User.js"; // adjust path if needed
+
 const router = express.Router();
-const User = require('../models/User');
 
-// ✅ POST /api/preferences/login
-router.post('/login', async (req, res) => {
-  const { identifier } = req.body;
-
-  if (!identifier) {
-    return res.status(400).json({ error: "Email or phone number required" });
-  }
-
-  const isEmail = identifier.includes('@');
-  const query = { identifier }; // ✅ Query directly using identifier
-
+/**
+ * Save or update preferences
+ * POST /api/preferences
+ * body: { userId, userName, preferences: [], identifier? }
+ */
+router.post("/", async (req, res) => {
   try {
-    let user = await User.findOne(query);
+    const { userId, userName, preferences, identifier } = req.body;
 
-    // Create user if not found
-    if (!user) {
-      user = new User({
-        email: isEmail ? identifier : undefined,
-        phone: !isEmail ? identifier : undefined,
-        identifier, // ✅ Save identifier explicitly
-        preferences: []
-      });
+    if (!userId) return res.status(400).json({ error: "Missing userId" });
+    if (!preferences || !Array.isArray(preferences))
+      return res.status(400).json({ error: "Preferences must be a non-empty array" });
 
-      await user.save();
-    }
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
 
-    res.json({ message: "Login successful", user });
+    if (userName) user.name = userName;
+    if (preferences) user.preferences = preferences;
+
+    // Optionally update identifier (email/phone)
+    if (identifier) user.identifier = identifier;
+
+    await user.save();
+    res.json({ message: "Preferences saved successfully", user });
   } catch (err) {
-    console.error("❌ Login error:", err.message);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error saving preferences:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-// ✅ POST /api/preferences — Save preferences
-router.post('/', async (req, res) => {
-  const { email, preferences } = req.body;
-
-  if (!email || !Array.isArray(preferences)) {
-    return res.status(400).json({ error: "Email/phone and preferences are required" });
-  }
-
+/**
+ * Get preferences by userId
+ * GET /api/preferences/:userId
+ */
+router.get("/:userId", async (req, res) => {
   try {
-    const user = await User.findOneAndUpdate(
-      {
-        $or: [{ email: email }, { phone: email }, { identifier: email }]
-      },
-      { preferences },
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.json({ message: "Preferences saved", user });
+    const { userId } = req.params;
+    const user = await User.findById(userId).select("email phone name preferences");
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json({ user });
   } catch (err) {
-    console.error("❌ Preferences saving error:", err.message);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching preferences:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-module.exports = router;
+/**
+ * Get preferences by identifier (email or phone)
+ * POST /api/preferences/get
+ * body: { identifier }
+ */
+router.post("/get", async (req, res) => {
+  try {
+    const { identifier } = req.body;
+    if (!identifier) return res.status(400).json({ error: "Identifier is required" });
+
+    const user = await User.findOne({ identifier }).select("email phone name preferences");
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json({
+      identifier,
+      userName: user.name || "",
+      preferences: user.preferences || []
+    });
+  } catch (err) {
+    console.error("Error fetching by identifier:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+/**
+ * Validate user (used in frontend)
+ * POST /api/preferences/validate
+ * body: { userId, identifier }
+ */
+router.post("/validate", async (req, res) => {
+  try {
+    const { userId, identifier } = req.body;
+    if (!userId || !identifier) return res.status(400).json({ valid: false });
+
+    const user = await User.findById(userId);
+    if (!user || user.identifier !== identifier) return res.json({ valid: false });
+
+    res.json({ valid: true });
+  } catch (err) {
+    console.error("Error validating user:", err);
+    res.status(500).json({ valid: false });
+  }
+});
+
+export default router;
