@@ -12,10 +12,11 @@ async function validateUser() {
 
   try {
     const res = await fetch("/api/preferences/validate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, identifier: userIdentifier }),
-    });
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ identifier: userIdentifier }) // only send what backend needs
+  });
+
     const data = await res.json();
 
     if (!res.ok || !data.valid) {

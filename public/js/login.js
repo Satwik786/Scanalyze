@@ -1,7 +1,6 @@
-// 🔑 Import centralized auth handler
 import { handleAuthRedirect } from "./auth.js";
 
-// 🚀 Run auth check (but allow login page if not authenticated)
+// Allow unauthenticated users on login page
 handleAuthRedirect(false);
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -56,19 +55,20 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response.ok && data.user && data.user._id) {
         console.log("✅ Login successful:", data);
 
-        // Clear guest mode if they log in
+        // Clear guest mode if previously enabled
         localStorage.removeItem("guestMode");
 
         localStorage.setItem("userIdentifier", userInput);
         localStorage.setItem("userId", data.user._id);
+        localStorage.setItem("prefsSaved", data.prefsSaved ? "true" : "false");
 
+        // Redirect based on prefs status
         if (data.prefsSaved) {
-          localStorage.setItem("prefsSaved", "true");
           window.location.replace("/html/home-page.html");
         } else {
-          localStorage.removeItem("prefsSaved");
           window.location.replace("/html/preferences.html");
         }
+
       } else {
         console.error("❌ Login failed:", data.error || "Unknown error");
         inputField.value = "";
@@ -84,9 +84,9 @@ document.addEventListener("DOMContentLoaded", () => {
     verifyBtn.innerText = "Verify & Continue";
   });
 
-  // 🟢 Guest Mode handler
+  // Guest Mode handler
   guestBtn?.addEventListener("click", () => {
-    localStorage.clear();              // clear any previous user state
+    localStorage.clear();
     localStorage.setItem("guestMode", "true");
     window.location.replace("/html/home-page.html");
   });

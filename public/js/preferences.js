@@ -1,9 +1,8 @@
-// Helper function to validate user on backend
+// Validate user on backend
 async function validateUser() {
-  const userId = localStorage.getItem("userId");
   const userIdentifier = localStorage.getItem("userIdentifier");
 
-  if (!userId || !userIdentifier) {
+  if (!userIdentifier) {
     localStorage.clear();
     window.location.replace("/html/login.html");
     return false;
@@ -13,7 +12,7 @@ async function validateUser() {
     const res = await fetch("/api/preferences/validate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, identifier: userIdentifier }),
+      body: JSON.stringify({ identifier: userIdentifier }),
     });
     const data = await res.json();
 
@@ -33,54 +32,63 @@ async function validateUser() {
 
 document.addEventListener("DOMContentLoaded", () => {
   validateUser().then(isValid => {
-    if (!isValid) return; // Already redirected inside validateUser()
+    if (!isValid) return;
 
     const form = document.getElementById("prefsForm");
     const userEmailDisplay = document.getElementById("user-email");
     const nameInput = document.getElementById("userName");
+    const submitBtn = document.getElementById("prefsSubmit");
 
-    const email = localStorage.getItem("userIdentifier");
+    if (!form || !submitBtn || !nameInput) {
+      console.error("⚠️ One or more form elements not found!");
+      return;
+    }
 
-    // 🚫 Skip preferences page if preferences already saved
+    const identifier = localStorage.getItem("userIdentifier");
+
+    // Redirect if prefs already saved
     if (localStorage.getItem("prefsSaved") === "true") {
       window.location.replace("/html/home-page.html");
       return;
     }
 
-    if (!form) {
-      console.error("⚠️ Preference form not found!");
-      return;
-    }
-
     if (userEmailDisplay) {
-      userEmailDisplay.textContent = email;
+      userEmailDisplay.textContent = identifier;
     }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      // Get the user's name
-      const name = nameInput ? nameInput.value.trim() : "";
+      const name = nameInput.value.trim();
       if (!name) {
         alert("Please enter your name.");
         return;
       }
 
-      // Save the name locally for the welcome message
-      localStorage.setItem("userName", name);
-
-      // Get selected preferences
       const checkboxes = form.querySelectorAll("input[type='checkbox']:checked");
       const selectedPrefs = Array.from(checkboxes).map(cb => cb.value);
+
+      if (selectedPrefs.length === 0) {
+        alert("Please select at least one preference.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Saving...";
 
       try {
         const res = await fetch("/api/preferences", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, name, preferences: selectedPrefs }), // include name in POST
+          body: JSON.stringify({
+            identifier,
+            userName: name,
+            preferences: selectedPrefs
+          }),
         });
 
         if (res.ok) {
+          localStorage.setItem("userName", name);
           localStorage.setItem("prefsSaved", "true");
           window.location.replace("/html/home-page.html");
         } else {
@@ -91,6 +99,9 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (err) {
         console.error("❌ Request error:", err);
         alert("An error occurred. Please try again.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Save Preferences";
       }
     });
   });
