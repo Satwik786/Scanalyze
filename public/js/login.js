@@ -1,4 +1,4 @@
-import { handleAuthRedirect } from "./auth.js";
+import { handleAuthRedirect, clearAuthStorage } from "./auth.js";
 
 // Allow unauthenticated users on login page
 handleAuthRedirect(false);
@@ -18,18 +18,22 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function isValidInput(value) {
-    const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+    const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,}$/; // extended regex
     const phonePattern = /^\d{10}$/;
     return emailPattern.test(value) || phonePattern.test(value);
   }
 
   verifyBtn.addEventListener("click", async () => {
-    const userInput = inputField.value.trim();
-
+    let userInput = inputField.value.trim();
     if (!userInput) {
       inputField.placeholder = "Please enter your email or mobile number!";
       inputField.classList.add("input-error");
       return;
+    }
+
+    // normalize to lowercase for emails
+    if (userInput.includes("@")) {
+      userInput = userInput.toLowerCase();
     }
 
     if (!isValidInput(userInput)) {
@@ -58,9 +62,17 @@ document.addEventListener("DOMContentLoaded", () => {
         // Clear guest mode if previously enabled
         localStorage.removeItem("guestMode");
 
+        // Save identifiers
         localStorage.setItem("userIdentifier", userInput);
         localStorage.setItem("userId", data.user._id);
         localStorage.setItem("prefsSaved", data.prefsSaved ? "true" : "false");
+
+        // ✅ Save userName directly from login response
+        if (data.user.userName) {
+          localStorage.setItem("userName", data.user.userName);
+        } else {
+          localStorage.removeItem("userName");
+        }
 
         // Redirect based on prefs status
         if (data.prefsSaved) {
@@ -86,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Guest Mode handler
   guestBtn?.addEventListener("click", () => {
-    localStorage.clear();
+    clearAuthStorage(); // ✅ safer than localStorage.clear()
     localStorage.setItem("guestMode", "true");
     window.location.replace("/html/home-page.html");
   });

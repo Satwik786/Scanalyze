@@ -1,4 +1,16 @@
 // -----------------------------
+// Auth Storage Helper
+// -----------------------------
+export function clearAuthStorage() {
+  // Only remove auth/session related items
+  localStorage.removeItem("userId");
+  localStorage.removeItem("userIdentifier");
+  localStorage.removeItem("prefsSaved");
+  localStorage.removeItem("guestMode");
+  localStorage.removeItem("userName"); // ✅ Clear username too (fresh fetch on login/validate)
+}
+
+// -----------------------------
 // Validate user against backend
 // -----------------------------
 async function validateUser() {
@@ -6,27 +18,33 @@ async function validateUser() {
   const userIdentifier = localStorage.getItem("userIdentifier");
 
   if (!userId || !userIdentifier) {
-    localStorage.clear();
+    clearAuthStorage();
     return false;
   }
 
   try {
-    const res = await fetch("/api/preferences/validate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ identifier: userIdentifier }) // only send what backend needs
-  });
+    // 🔄 Fetch full user data instead of just "valid"
+    const res = await fetch("/api/preferences/get", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ identifier: userIdentifier })
+    });
 
     const data = await res.json();
 
-    if (!res.ok || !data.valid) {
-      localStorage.clear();
+    if (!res.ok || !data.userName) {
+      clearAuthStorage();
       return false;
     }
+
+    // ✅ Sync user details into localStorage
+    localStorage.setItem("userName", data.userName || "User");
+    localStorage.setItem("prefsSaved", (data.preferences?.length > 0) ? "true" : "false");
+
     return true;
   } catch (err) {
     console.error("⚠️ User validation failed:", err);
-    localStorage.clear();
+    clearAuthStorage();
     return false;
   }
 }

@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Scanalyze</title>
 
-  <!-- ✅ Use absolute path for CSS -->
   <link rel="stylesheet" href="/css/home-page-style.css" />
   
-  <link rel="icon" href="/images/favicon.ico" />
   <link rel="preconnect" href="https://world.openfoodfacts.org" />
 
 </head>
@@ -19,8 +17,8 @@
     <div class="logo">Scanalyze</div>
     <nav class="nav-links">
       <a href="#">Discover</a>
-      <a href="#">Browse Ratings</a>
-      <a href="#">My Profile</a>
+      <a href="#scanProduct">Scan Product</a>
+      <a href="preferences.html">My Preferences</a>
       <a href="#about">About</a>
     </nav>
     <div class="search-container">
@@ -41,7 +39,7 @@
     <!-- Carousel -->
   <div class="carousel">
     <div class="slides">
-      <img src="/images/red.jpg" alt="Slide 1" />Search barcode images <br>
+      <img src="/images/Good enough for now.png" alt="Slide 1" />Search barcode images <br>
       <img src="/images/yellow.jpg" alt="Slide 2" />Know what you're eating (know more button  for info) and database for good products that are  >=3.2 rating <br>
       <img src="/images/green.webp" alt="Slide 3"/> Chat with S.R.
         But you can call me Sera - your
@@ -53,13 +51,13 @@
   </div>
 
   <!-- Scan banner -->
-  <section class="scanalyze-banner">
+  <section id="scanProduct" class="scanalyze-banner">
     <div class="banner-content">
       <h2>Want to know what's in your Food?</h2>
       <div class="banner-row">
         <span class="text-left">Scanalyze</span>
         <label class="scan-btn" for="barcode-file">
-          <img src="/images/scanner simple barcode blue-purp.webp" alt="Upload Barcode" />
+          <img src="/images/scanner.webp" alt="Upload Barcode" />
         </label>
         <input type="file" id="barcode-file" accept="image/*" style="display:none" />
         <span class="text-right">it!</span>
@@ -73,34 +71,34 @@
     <h2>All Categories</h2>
     <div class="category-grid">
       <div class="category-item" onclick="searchCategory('biscuits')">
-        <img src="/images/red.jpg" alt="Biscuits"><span>Biscuits</span>
+        <img src="/images/biscuit.png" alt="Biscuits"><span>Biscuits</span>
       </div>
       <div class="category-item" onclick="searchCategory('frozen foods')">
-        <img src="/images/yellow.jpg" alt="Ice cream"><span>Frozen Foods</span>
+        <img src="/images/frozen foods.png" alt="Ice cream"><span>Frozen Foods</span>
       </div>
       <div class="category-item" onclick="searchCategory('chocolates')">
-        <img src="/images/green.webp" alt="Chocolates"><span>Chocolates</span>
+        <img src="/images/chocolates.png" alt="Chocolates"><span>Chocolates</span>
       </div>
       <div class="category-item" onclick="searchCategory('cold drinks juices')">
-        <img src="/images/red.jpg" alt="Cold Drinks"><span>Cold Drinks & Juices</span>
+        <img src="/images/juices.png" alt="Cold Drinks"><span>Cold Drinks & Juices</span>
       </div>
       <div class="category-item" onclick="searchCategory('dairy bread eggs')">
-        <img src="/images/green.webp" alt="Dairy"><span>Dairy, Bread & Eggs</span>
+        <img src="/images/dairy bread and eggs.png" alt="Dairy"><span>Dairy, Bread & Eggs</span>
       </div>
       <div class="category-item" onclick="searchCategory('instant food')">
-        <img src="/images/yellow.jpg" alt="Instant Food"><span>Instant Food</span>
+        <img src="/images/instant food.png" alt="Instant Food"><span>Instant Food</span>
       </div>
       <div class="category-item" onclick="searchCategory('munchies')">
-        <img src="/images/red.jpg" alt="Munchies"><span>Munchies</span>
+        <img src="/images/munchies.png" alt="Munchies"><span>Munchies</span>
       </div>
       <div class="category-item" onclick="searchCategory('cakes bakes')">
-        <img src="/images/yellow.jpg" alt="Cakes"><span>Cakes & Bakes</span>
+        <img src="/images/cakes and bakes.png" alt="Cakes"><span>Cakes & Bakes</span>
       </div>
       <div class="category-item" onclick="searchCategory('rice atta dals')">
-        <img src="/images/green.webp" alt="Rice"><span>Rice, Atta & Dals</span>
+        <img src="/images/rice atta and dals.png" alt="Rice"><span>Rice, Atta & Dals</span>
       </div>
       <div class="category-item" onclick="searchCategory('spices')">
-        <img src="/images/red.jpg" alt="masalas"><span>Spices / Masalas</span>
+        <img src="/images/spices and masalas.png" alt="masalas"><span>Spices / Masalas</span>
       </div>
     </div>
   </section>

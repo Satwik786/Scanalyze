@@ -3,22 +3,26 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    unique: false,
-    sparse: true // Optional field
+    sparse: true, // optional
+    lowercase: true, // normalize emails
+    trim: true
   },
   phone: {
     type: String,
-    unique: false,
-    sparse: true // Optional field
+    sparse: true, // optional
+    trim: true
   },
   identifier: {
     type: String,
-    unique: true,
-    sparse: true // Ensures either email or phone is treated as unique identifier
+    required: true,   // ✅ must always exist
+    unique: true,     // enforce uniqueness
+    index: true,
+    lowercase: true,  // normalize for login
+    trim: true
   },
-  name: {
+  userName: {
     type: String,
-    default: "" // Added name field for storing userName
+    default: ""
   },
   preferences: {
     type: [String],

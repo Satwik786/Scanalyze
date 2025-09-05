@@ -88,7 +88,7 @@ async function performKeywordSearch(query) {
   }
 }
 
-// 🧱 Display results in cards
+// Display results in cards
 function displayResults(products) {
   resultsContainer.innerHTML = '';
 
@@ -96,7 +96,7 @@ function displayResults(products) {
     const card = document.createElement('div');
     card.className = 'result-card';
     card.innerHTML = `
-      <img src="${prod.image_front_thumb_url || 'https://via.placeholder.com/150'}" 
+      <img id = "productImg" src="${prod.image_front_url || 'https://via.placeholder.com/150'}" 
            alt="${prod.product_name || 'Product'}"
            onerror="this.src='https://via.placeholder.com/150'" />
       <h4>${prod.product_name || 'Unnamed'}</h4>

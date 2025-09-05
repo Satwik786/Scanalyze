@@ -1,9 +1,22 @@
+// -----------------------------
+// Auth Storage Helper
+// -----------------------------
+function clearAuthStorage() {
+  localStorage.removeItem("userId");
+  localStorage.removeItem("userIdentifier");
+  localStorage.removeItem("prefsSaved");
+  localStorage.removeItem("guestMode");
+  // ❌ Do not remove "userName" here
+}
+
+// -----------------------------
 // Validate user on backend
+// -----------------------------
 async function validateUser() {
   const userIdentifier = localStorage.getItem("userIdentifier");
 
   if (!userIdentifier) {
-    localStorage.clear();
+    clearAuthStorage();
     window.location.replace("/html/login.html");
     return false;
   }
@@ -17,19 +30,28 @@ async function validateUser() {
     const data = await res.json();
 
     if (!res.ok || !data.valid) {
-      localStorage.clear();
+      clearAuthStorage();
       window.location.replace("/html/login.html");
       return false;
     }
+
+    // ✅ If backend includes userName, update it
+    if (data.userName) {
+      localStorage.setItem("userName", data.userName);
+    }
+
     return true;
   } catch (err) {
-    console.error("User validation failed:", err);
-    localStorage.clear();
+    console.error("⚠️ User validation failed:", err);
+    clearAuthStorage();
     window.location.replace("/html/login.html");
     return false;
   }
 }
 
+// -----------------------------
+// Preferences form logic
+// -----------------------------
 document.addEventListener("DOMContentLoaded", () => {
   validateUser().then(isValid => {
     if (!isValid) return;
@@ -88,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (res.ok) {
+          // ✅ Save username locally so dashboard can greet properly
           localStorage.setItem("userName", name);
           localStorage.setItem("prefsSaved", "true");
           window.location.replace("/html/home-page.html");
