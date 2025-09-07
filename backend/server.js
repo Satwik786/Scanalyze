@@ -4,6 +4,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import User from "./models/User.js";
+import discoverRoute from "./routes/discover.js";
 import connectDB from "./db.js";
 import dotenv from "dotenv";
 import preferencesRoute from "./routes/preferences.js";
@@ -34,6 +35,8 @@ app.post("/api/preferences/test", (req, res) => {
 // ✅ Import preferences route (keep it after test route)
 app.use("/api/preferences", preferencesRoute);
 
+app.use("/api/discover", discoverRoute);
+
 // 📦 Category API route
 app.get("/api/category/:slug", async (req, res) => {
   const { slug } = req.params;
@@ -52,12 +55,12 @@ app.get("/api/category/:slug", async (req, res) => {
   }
 });
 
-// 🔍 Search API route
+// 🔍 Search API route (now with India restriction)
 app.get("/api/search", async (req, res) => {
   const searchTerms = req.query.q || "";
   const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
     searchTerms
-  )}&search_simple=1&action=process&json=1`;
+  )}&tagtype_0=countries&tag_contains_0=contains&tag_0=india&search_simple=1&action=process&json=1&page_size=20`;
 
   try {
     const response = await axios.get(url, {
@@ -67,6 +70,21 @@ app.get("/api/search", async (req, res) => {
   } catch (error) {
     console.error("Search API error:", error.message);
     res.status(500).json({ error: "Failed to perform search" });
+  }
+});
+
+// 🧪 Discover API for guests (Indian products only)
+app.get("/api/discover/guest", async (req, res) => {
+  try {
+    const url = `https://world.openfoodfacts.org/cgi/search.pl?tagtype_0=countries&tag_contains_0=contains&tag_0=india&json=1&page_size=20`;
+    const response = await axios.get(url, {
+      headers: { "User-Agent": "ScanalyzeApp/1.0" },
+    });
+    const products = response.data.products || [];
+    res.json(products);
+  } catch (err) {
+    console.error("Guest Discover API error:", err.message);
+    res.status(500).json({ error: "Failed to fetch Discover products" });
   }
 });
 

@@ -1,49 +1,6 @@
-function calculateIngredientScore(ingredientsText) {
-  if (!ingredientsText || ingredientsText.trim() === '') return 1.0;
+import { calculateIngredientScore } from './utils/score-logic.js';
 
-  const text = ingredientsText.toLowerCase();
-  let score = 5.0;
-
-  const healthy = [
-    'whole grain', 'oat', 'quinoa', 'lentil', 'chickpea',
-    'brown rice', 'fruit', 'vegetable', 'dehydrated vegetable',
-    'garlic', 'onion', 'tomato'
-  ];
-
-  const redFlags = [
-    '\\bsugar\\b', '\\bglucose\\b', '\\bfructose\\b', 'corn syrup',
-    'palm oil', 'hydrogenated', '\\bmsg\\b',
-    'monosodium glutamate', '\\bmaltodextrin\\b', '\\bsalt\\b'
-  ];
-
-  const harmful = [
-    'preservative', 'color', 'colour', 'flavouring',
-    'flavor', 'emulsifier', 'sweetener', '\\be\\d+\\b', 'additive'
-  ];
-
-  healthy.forEach(h => {
-    if (text.includes(h)) score += 0.25;
-  });
-
-  redFlags.forEach(pattern => {
-    const regex = new RegExp(pattern, 'gi');
-    const matches = text.match(regex) || [];
-    score -= 1.0 * matches.length;
-  });
-
-  harmful.forEach(pattern => {
-    const regex = new RegExp(`\\b${pattern}\\w*\\b`, 'gi');
-    const matches = text.match(regex) || [];
-    score -= 0.6 * matches.length;
-  });
-
-  const separators = (ingredientsText.match(/[,;]/g) || []).length;
-  if (separators >= 6) score -= 0.3;
-  if (separators >= 10) score -= 0.3;
-
-  return Math.max(0.5, Math.min(score, 5.0));
-}
-
+// Utility Functions
 function displayNutrient(value, unit = '') {
   return value !== undefined ? `${value} ${unit}` : '–';
 }
@@ -59,10 +16,11 @@ function showNoRating() {
   ratingContainer.classList.remove('rating-red', 'rating-orange', 'rating-green');
 }
 
+// Load Product Details
 async function loadProduct() {
   const params = new URLSearchParams(location.search);
   const code = params.get('code');
-  const identifier = localStorage.getItem('identifier'); // ✅ Your user's email or phone
+  const identifier = localStorage.getItem('identifier'); // User email/phone
 
   if (!code) {
     document.body.innerHTML = '<p>Product code missing.</p>';
@@ -84,13 +42,14 @@ async function loadProduct() {
     const p = json.product;
     const ratingContainer = document.getElementById('rating-score');
 
+    // Basic info
     document.getElementById('product-img').src = p.image_front_url || 'https://via.placeholder.com/200';
     productNameEl.textContent = p.product_name || 'Unnamed';
     document.getElementById('product-brand').textContent = p.brands || 'Unknown brand';
 
+    // Nutritional info
     const n = p.nutriments || {};
     const kcal = n['energy-kcal_100g'] ?? n['energy_100g'];
-
     document.getElementById('nutr-energy').textContent = displayNutrient(kcal, 'kcal');
     document.getElementById('nutr-fat').textContent = displayNutrient(n.fat_100g, 'g');
     document.getElementById('nutr-sugars').textContent = displayNutrient(n.sugars_100g, 'g');
@@ -100,9 +59,10 @@ async function loadProduct() {
     const nutrValues = ['energy-kcal_100g', 'energy_100g', 'fat_100g', 'sugars_100g', 'salt_100g'];
     const hasAnyNutrition = nutrValues.some(key => n[key] !== undefined);
 
+    // Ingredients & metadata
     const ingredients = p.ingredients_text || '';
     if (!ingredients.trim() || (!hasAnyNutrition && !ingredients.trim())) {
-      nutrNoteEl.textContent = 'N/A – This product has not been rated due to either insufficient nutritional data or missing ingredient information.';
+      nutrNoteEl.textContent = 'N/A – Insufficient nutritional data or missing ingredient info.';
     }
 
     document.getElementById('ingredients').textContent = ingredients || '–';
@@ -123,11 +83,15 @@ async function loadProduct() {
       }
     });
 
-    // Ingredient Rating
+    // Ingredient Rating (Safety-first)
     if (!ingredients.trim()) {
       showNoRating();
     } else {
-      const score = calculateIngredientScore(ingredients);
+      let score = calculateIngredientScore(ingredients, n);
+
+      // Minimum floor rating
+      if (score < 1.0) score = 0.5;
+
       ratingContainer.classList.remove('rating-red', 'rating-orange', 'rating-green');
       const infoIcon = `<i id="low-rating-toggle" class="fas fa-info-circle rating-info-icon" title="Why this rating?"></i>`;
 
@@ -142,7 +106,7 @@ async function loadProduct() {
       ratingContainer.innerHTML = `
         <strong>Rating:</strong> ${score.toFixed(1)} / 5
         ${score < 3.0 ? infoIcon : ''}
-        <p class="rating-note">Rating based on ingredient analysis.</p>
+        <p class="rating-note">Rating based on ingredient safety.</p>
       `;
 
       if (score < 3.0) {
@@ -156,7 +120,7 @@ async function loadProduct() {
       }
     }
 
-    // ⚠️ Show Preferences-Based Warnings
+    // User Preference Warnings
     const warningContainer = document.getElementById('preference-warning');
     if (json.warnings && json.warnings.length > 0) {
       warningContainer.innerHTML = `
@@ -166,22 +130,20 @@ async function loadProduct() {
         </div>
       `;
     } else {
-      warningContainer.innerHTML = ''; // Clear if no warning
+      warningContainer.innerHTML = '';
     }
 
-    // 🔥 Energy Cost
+    // Energy Cost Calculation
     const energyCostContainer = document.getElementById('energy-cost');
 
     if (!kcal) {
       energyCostContainer.style.display = 'none';
     } else {
-      const weight = 70;
+      const weight = 70; // kg
       const met = { walk: 3.5, cycle: 7, run: 9.8 };
-
       function calcBurnTime(metValue) {
         return Math.round((kcal * 60) / (metValue * weight));
       }
-
       document.getElementById('burn-walk').textContent = `${calcBurnTime(met.walk)} min`;
       document.getElementById('burn-cycle').textContent = `${calcBurnTime(met.cycle)} min`;
       document.getElementById('burn-run').textContent = `${calcBurnTime(met.run)} min`;
@@ -193,6 +155,8 @@ async function loadProduct() {
   }
 }
 
+// Event listeners
 document.getElementById('burn-toggle')?.addEventListener('click', toggleEnergyCost);
 
+// Load product on page ready
 loadProduct();
