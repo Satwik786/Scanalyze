@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barcode Images</title>
+  <link rel="stylesheet" href="/css/barcodes.css">
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js" defer></script>
+  <script src="/js/barcodes.js" defer></script>
+</head>
+<body>
+  <h1>Search Indian Packaged Product Barcodes</h1>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Enter product name...">
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <div id="spinner" class="spinner"></div>
+
+  <div id="gallery" class="barcode-gallery"></div>
+</body>
+</html>

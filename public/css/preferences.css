@@ -75,11 +75,13 @@ button {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  background: linear-gradient(135deg, #4a00e0, #6a11cb);
+  transition: transform 0.2s ease , opacity 0.2s ease;
 }
 
 button:hover {
-  background-color: #005f87;
+  transform: translateY(-2px);
+  opacity: 0.9;
 }
 
 #save-status {
