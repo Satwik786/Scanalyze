@@ -18,11 +18,40 @@ body {
   flex-wrap: wrap;
   padding: 16px 32px;
   background-color: #ffffff;
-  box-shadow: 0 2px 10px rgba(14, 165, 233, 0.1);
+  backdrop-filter: blur(10px); /* glass blur effect */
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: none;
   position: sticky;
   top: 0;
   z-index: 10;
+  transition: background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
 }
+
+.header-dark {
+  background: rgba(15, 23, 42, 0.95); /* fully dark for sections */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.header-dark .nav-links a {
+  color: #cbd5e1;
+}
+
+.header-dark .nav-links a:hover {
+  color: #38bdf8;
+}
+
+.header-dark .login-btn,
+.header-dark .logout-btn {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+}
+
+.header-dark .search-container {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(203, 213, 225, 0.2);
+}
+
 
 /* Logo with teal gradient */
 .logo {
@@ -230,6 +259,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-top: 50px;
 }
 
 .text-left, .text-right {
@@ -488,42 +518,47 @@ main {
   margin-top: 0.5rem;
 }
 
+/* Dark theme About Section */
 .about-section {
   padding: 80px 10vw;
-  /* No max-width, no background, no box */
+  background-color: #0f172a; /* dark navy background */
+  color: #e2e8f0; /* light text */
+  font-family: 'Inter', sans-serif;
 }
 
 .about-section h2 {
   font-size: 3rem;
-  color: #0e7490;
-  margin-bottom: 20px;
   font-weight: 800;
-  border-left: 6px solid #22d3ee;
-  padding-left: 14px;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #0ea5e9, #0284c7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
+  text-align: center;
 }
 
 .about-section h3 {
   font-size: 1.8rem;
-  color: #0ea5e9;
-  margin-top: 48px;
-  margin-bottom: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  color: #22d3ee;
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .about-section h3::before {
-  content: "🧠";
-  margin-right: 10px;
+  content: "💡"; /* default icon */
   font-size: 1.4rem;
 }
 
 .about-section h3:nth-of-type(2)::before {
-  content: "🩺";
+  content: "🧑‍🤝‍🧑";
 }
 
 .about-section h3:nth-of-type(3)::before {
-  content: "🔍";
+  content: "🛠️";
 }
 
 .about-section h3:nth-of-type(4)::before {
@@ -531,48 +566,190 @@ main {
 }
 
 .about-section p {
-  font-size: 1.15rem;
-  margin-bottom: 18px;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 20px;
 }
 
 .about-section ul {
-  list-style-type: disc;
-  padding-left: 30px;
-  margin-bottom: 24px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 30px 0;
 }
 
-.about-section ul ul {
-  list-style-type: circle;
-  padding-left: 22px;
-  margin-top: 6px;
+/* Nested list styling for About Section */
+.about-section ul li {
+  background: #1e293b; /* card-like dark block */
+  padding: 14px 20px;   /* more padding for readability */
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.about-section li {
-  margin-bottom: 10px;
+.about-section ul li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(34, 211, 238, 0.4);
 }
 
-.about-section strong {
-  color: #0284c7;
-  font-weight: 600;
+/* Nested ul inside a li */
+.about-section ul li ul {
+  margin-top: 10px;      /* spacing from parent text */
+  margin-left: 20px;     /* indentation for hierarchy */
+  padding-left: 0;       /* remove default padding */
 }
+
+.about-section ul li ul li {
+  background: #111827;   /* slightly darker for nested items */
+  padding: 10px 16px;    /* padding inside nested items */
+  margin-bottom: 8px;    /* spacing between nested items */
+  font-size: 0.95rem;    /* slightly smaller font for sub-items */
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.about-section ul li ul li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(34, 211, 238, 0.3);
+}
+
 
 @media (max-width: 768px) {
   .about-section {
-    padding: 48px 5vw;
+    padding: 40px 5vw;
   }
 
   .about-section h2 {
-    font-size: 2.3rem;
+    font-size: 2.5rem;
   }
 
   .about-section h3 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+  }
+
+  .about-section ul li {
+    font-size: 0.95rem;
   }
 }
+
 
 #productImg {
   width: 200px;
   height: 217px;
   margin-bottom: 1rem;
   border-radius: 0.5rem;
+}
+
+/* new baarcode section  */
+
+.barcode-section {
+  background: linear-gradient(135deg, #0f172a, #000000);
+  height: 100vh; /* full viewport height */
+  display: flex;
+  align-items: center; /* vertical centering */
+  justify-content: center; /* horizontal centering */
+  text-align: center;
+  padding: 0 20px; /* horizontal padding */
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box; /* ensures padding doesn't overflow */
+}
+
+.barcode-content h2 {
+  font-size: 4rem; /* larger heading */
+  font-weight: 900;
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8, #0ea5e9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-top: -20px;
+  margin-bottom: 30px;
+  letter-spacing: 1px;
+  max-width: 800px;
+}
+
+.barcode-content p {
+  font-size: 1.5rem; /* larger, more readable text */
+  color: #cbd5e1;
+  max-width: 800px;
+  margin: 0 auto 50px auto;
+  line-height: 1.8;
+}
+
+.barcode-btn {
+  padding: 18px 40px; /* slightly bigger button */
+  font-size: 1.3rem;
+  font-weight: 800;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #4a00e0, #6a11cb);
+  color: white;
+  transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.35s ease;
+}
+
+.barcode-btn:hover {
+  transform: translateY(-4px) scale(1.05); /* slightly larger hover effect */
+  opacity: 0.95;
+  box-shadow: 0 12px 28px rgba(106, 17, 203, 0.6);
+}
+
+/* scroll to barcode section makes the header change them */
+
+/* Dark theme for header when over barcode section */
+.header-dark {
+  background: rgba(15, 23, 42, 0.85); /* semi-transparent dark */
+  backdrop-filter: blur(10px);       /* glassy blur effect */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+  transition: background 0.5s ease, box-shadow 0.5s ease, backdrop-filter 0.5s ease;
+}
+
+/* Logo gradient in dark header */
+.header-dark .logo {
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8, #0ea5e9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: background 0.5s ease;
+}
+
+/* Nav links color for dark header */
+.header-dark .nav-links a {
+  color: #cbd5e1;
+  transition: color 0.3s ease;
+}
+
+.header-dark .nav-links a:hover {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
+/* Buttons in dark header */
+.header-dark .login-btn,
+.header-dark .logout-btn {
+  background: linear-gradient(135deg, #4a00e0, #6a11cb);
+  color: white;
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.5s ease;
+}
+
+.header-dark .login-btn:hover,
+.header-dark .logout-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* Search bar adjustments for dark header */
+.header-dark .search-container {
+  background-color: rgba(255, 255, 255, 0.05); /* subtle transparency */
+  border: 1px solid rgba(203, 213, 225, 0.2);
+}
+
+.header-dark .search-input {
+  color: #e2e8f0; /* light text inside search */
+}
+
+.header-dark .search-button {
+  background: linear-gradient(135deg, #4a00e0, #6a11cb);
+  color: #ffffff;
+}
+
+.header-dark .search-button:hover {
+  background-color: #38bdf8;
 }
