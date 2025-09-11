@@ -1,3 +1,5 @@
+import { getUserAllergens, filterProductsByAllergens } from './utils/allergens.js';
+
 const resultsContainer = document.getElementById('search-results');
 const title = document.getElementById('category-title');
 
@@ -24,7 +26,6 @@ if (categoryKey) {
   if (!categoryMap[normalizedKey]) {
     resultsContainer.innerHTML = '<p>Invalid or unknown category.</p>';
   } else {
-    // Set readable title
     const readableTitle = normalizedKey
       .split(' ')
       .map(w => w.charAt(0).toUpperCase() + w.slice(1))
@@ -58,7 +59,10 @@ async function performCategorySearch(categorySlug) {
       return;
     }
 
-    displayResults(data.products);
+    const allergens = await getUserAllergens();
+    const filteredProducts = filterProductsByAllergens(data.products, allergens);
+
+    displayResults(filteredProducts);
   } catch (err) {
     console.error(err);
     resultsContainer.innerHTML = '<p>Error fetching data. Please try again later.</p>';
@@ -81,7 +85,10 @@ async function performKeywordSearch(query) {
       return;
     }
 
-    displayResults(data.products);
+    const allergens = await getUserAllergens();
+    const filteredProducts = filterProductsByAllergens(data.products, allergens);
+
+    displayResults(filteredProducts);
   } catch (err) {
     console.error(err);
     resultsContainer.innerHTML = '<p>Error fetching data. Please try again later.</p>';
@@ -96,7 +103,7 @@ function displayResults(products) {
     const card = document.createElement('div');
     card.className = 'result-card';
     card.innerHTML = `
-      <img id = "productImg" src="${prod.image_front_url || 'https://via.placeholder.com/150'}" 
+      <img id="productImg" src="${prod.image_front_url || 'https://via.placeholder.com/150'}" 
            alt="${prod.product_name || 'Product'}"
            onerror="this.src='https://via.placeholder.com/150'" />
       <h4>${prod.product_name || 'Unnamed'}</h4>

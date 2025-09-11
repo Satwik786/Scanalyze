@@ -228,3 +228,16 @@ footer {
 .hidden {
   display: none;
 }
+
+/* Highlight user allergens in ingredients */
+.allergen-highlight {
+  background-color: #ffcccc;
+  color: #b30000;
+  font-weight: bold;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.rating-info-icon:hover {
+  color: #d32f2f;
+}

@@ -1,4 +1,5 @@
 import { calculateIngredientScore } from './utils/score-logic.js';
+import { getUserAllergens } from './utils/allergens.js'; // <-- import user allergens
 
 // Utility Functions
 function displayNutrient(value, unit = '') {
@@ -20,7 +21,7 @@ function showNoRating() {
 async function loadProduct() {
   const params = new URLSearchParams(location.search);
   const code = params.get('code');
-  const identifier = localStorage.getItem('identifier'); // User email/phone
+  const identifier = localStorage.getItem('userIdentifier'); // <-- user identifier
 
   if (!code) {
     document.body.innerHTML = '<p>Product code missing.</p>';
@@ -31,15 +32,16 @@ async function loadProduct() {
   productNameEl.textContent = 'Loading…';
 
   try {
+    // Fetch product data
     const res = await fetch(`/api/product/${code}?identifier=${encodeURIComponent(identifier || '')}`);
     const json = await res.json();
+    const p = json.product;
 
-    if (!json.product) {
+    if (!p) {
       document.body.innerHTML = '<p>Product not found.</p>';
       return;
     }
 
-    const p = json.product;
     const ratingContainer = document.getElementById('rating-score');
 
     // Basic info
@@ -65,15 +67,35 @@ async function loadProduct() {
       nutrNoteEl.textContent = 'N/A – Insufficient nutritional data or missing ingredient info.';
     }
 
-    document.getElementById('ingredients').textContent = ingredients || '–';
     document.getElementById('quantity').textContent = p.quantity || '–';
     document.getElementById('categories').textContent = p.categories || '–';
 
-    const allergens = p.allergens || (p.allergens_tags?.join(', ') || '');
-    if (allergens.trim()) {
-      document.getElementById('allergens').textContent = allergens.replace(/_/g, ' ');
+    // Get user allergens
+    const userAllergens = await getUserAllergens();
+    const productAllergens = (p.allergens_tags || []).map(a => a.replace('en:', '').replace(/_/g, ' '));
+
+    // Highlight allergens in ingredients
+    let highlightedIngredients = ingredients;
+    userAllergens.forEach(allergen => {
+      if (productAllergens.includes(allergen)) {
+        const regex = new RegExp(`\\b(${allergen})\\b`, 'gi');
+        highlightedIngredients = highlightedIngredients.replace(regex, '<span class="allergen-highlight">$1</span>');
+      }
+    });
+    document.getElementById('ingredients').innerHTML = highlightedIngredients || '–';
+
+    // ⚠️ Show warning inside allergens-container
+    const allergensContainer = document.getElementById('allergens-container');
+    if (productAllergens.length === 0) {
+      allergensContainer.style.display = 'none';
     } else {
-      document.getElementById('allergens-container').style.display = 'none';
+      const matchedAllergens = userAllergens.filter(a => productAllergens.includes(a));
+      allergensContainer.innerHTML = matchedAllergens.length > 0
+        ? `
+          ⚠️ <strong>Warning:</strong> This product contains ingredients you're allergic to: ${matchedAllergens.join(', ')}
+          <br><strong>Allergens:</strong> ${productAllergens.join(', ') || '–'}
+        `
+        : `<p><strong>Allergens:</strong> ${productAllergens.join(', ') || '–'}</p>`;
     }
 
     ['quantity', 'categories', 'ingredients'].forEach(id => {
@@ -83,31 +105,23 @@ async function loadProduct() {
       }
     });
 
-    // Ingredient Rating (Safety-first)
+    // Ingredient Rating
     if (!ingredients.trim()) {
       showNoRating();
     } else {
       let score = calculateIngredientScore(ingredients, n);
-
-      // Minimum floor rating
       if (score < 1.0) score = 0.5;
 
       ratingContainer.classList.remove('rating-red', 'rating-orange', 'rating-green');
       const infoIcon = `<i id="low-rating-toggle" class="fas fa-info-circle rating-info-icon" title="Why this rating?"></i>`;
 
-      if (score < 2.0) {
-        ratingContainer.classList.add('rating-red');
-      } else if (score < 3.5) {
-        ratingContainer.classList.add('rating-orange');
-      } else {
-        ratingContainer.classList.add('rating-green');
-      }
+      if (score < 2.0) ratingContainer.classList.add('rating-red');
+      else if (score < 3.5) ratingContainer.classList.add('rating-orange');
+      else ratingContainer.classList.add('rating-green');
 
-      ratingContainer.innerHTML = `
-        <strong>Rating:</strong> ${score.toFixed(1)} / 5
+      ratingContainer.innerHTML = `<strong>Rating:</strong> ${score.toFixed(1)} / 5
         ${score < 3.0 ? infoIcon : ''}
-        <p class="rating-note">Rating based on ingredient safety.</p>
-      `;
+        <p class="rating-note">Rating based on ingredient safety.</p>`;
 
       if (score < 3.0) {
         document.getElementById('low-rating-msg').classList.add('hidden');
@@ -120,30 +134,14 @@ async function loadProduct() {
       }
     }
 
-    // User Preference Warnings
-    const warningContainer = document.getElementById('preference-warning');
-    if (json.warnings && json.warnings.length > 0) {
-      warningContainer.innerHTML = `
-        <div class="warning-box">
-          <strong>Warning:</strong> This product contains ingredients you're sensitive to: 
-          <span class="warning-list">${json.warnings.join(', ')}</span>
-        </div>
-      `;
-    } else {
-      warningContainer.innerHTML = '';
-    }
-
-    // Energy Cost Calculation
+    // Energy Cost
     const energyCostContainer = document.getElementById('energy-cost');
-
     if (!kcal) {
       energyCostContainer.style.display = 'none';
     } else {
-      const weight = 70; // kg
+      const weight = 70;
       const met = { walk: 3.5, cycle: 7, run: 9.8 };
-      function calcBurnTime(metValue) {
-        return Math.round((kcal * 60) / (metValue * weight));
-      }
+      const calcBurnTime = metValue => Math.round((kcal * 60) / (metValue * weight));
       document.getElementById('burn-walk').textContent = `${calcBurnTime(met.walk)} min`;
       document.getElementById('burn-cycle').textContent = `${calcBurnTime(met.cycle)} min`;
       document.getElementById('burn-run').textContent = `${calcBurnTime(met.run)} min`;
@@ -158,5 +156,5 @@ async function loadProduct() {
 // Event listeners
 document.getElementById('burn-toggle')?.addEventListener('click', toggleEnergyCost);
 
-// Load product on page ready
+// Load product
 loadProduct();

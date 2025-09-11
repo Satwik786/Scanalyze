@@ -1,4 +1,5 @@
 import { calculateIngredientScore } from './utils/score-logic.js';
+import { getUserAllergens, filterProductsByAllergens } from './utils/allergens.js';
 
 // User Info & Guest Check
 const guestMode = localStorage.getItem("guestMode") === "true";
@@ -39,7 +40,7 @@ async function loadDiscoverProducts() {
   showLoading();
   try {
     const url = guestMode
-      ? "/api/discover/guest"  // Guests should not reach here anyway
+      ? "/api/discover/guest"
       : `/api/discover/${encodeURIComponent(userIdentifier)}`;
 
     const res = await fetch(url);
@@ -47,7 +48,8 @@ async function loadDiscoverProducts() {
 
     const data = await res.json();
     allProducts = data || [];
-    applyFilters();
+
+    await applyFilters(); // apply diet + allergen filters
   } catch (err) {
     console.error("Error loading products:", err);
     const container = document.getElementById("discoverResults");
@@ -66,7 +68,8 @@ async function searchProducts(query) {
 
     const data = await res.json();
     allProducts = data.products || [];
-    applyFilters();
+
+    await applyFilters(); // apply diet + allergen filters
   } catch (err) {
     console.error("Search error:", err);
     const container = document.getElementById("discoverResults");
@@ -74,11 +77,12 @@ async function searchProducts(query) {
   }
 }
 
-// Apply Diet Filters
-function applyFilters() {
+// Apply Diet & Allergen Filters
+async function applyFilters() {
   const selectedDiet = document.querySelector('input[name="diet"]:checked')?.value || "all";
   let filtered = [...allProducts];
 
+  // Diet filtering
   if (selectedDiet === "veg") {
     filtered = filtered.filter(p =>
       p.ingredients_tags?.includes("vegetarian") ||
@@ -90,6 +94,10 @@ function applyFilters() {
       p.ingredients_analysis_tags?.includes("en:non-vegetarian")
     );
   }
+
+  // Allergen filtering
+  const allergens = await getUserAllergens();
+  filtered = filterProductsByAllergens(filtered, allergens);
 
   displayDiscover(filtered);
 }
