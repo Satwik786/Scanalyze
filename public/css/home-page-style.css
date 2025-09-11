@@ -191,26 +191,6 @@ body {
   opacity: 0.9;
 }
 
-/* Responsive adjustments */
-@media (max-width: 900px) {
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .nav-links {
-    flex-direction: column;
-    gap: 10px;
-    margin-left: 0;
-  }
-
-  .search-container {
-    width: 100%;
-    margin: 0;
-  }
-}
-
 /* Welcome Banner */
 .welcome-banner {
   text-align: center;
@@ -728,3 +708,151 @@ main {
   box-shadow: 0 12px 28px rgba(106, 17, 203, 0.6);
 }
 
+/* ================= Mobile Responsive Overrides ================= */
+@media (max-width: 900px) {
+
+  /* Header adjustments */
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 15px;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
+    margin-left: 0;
+  }
+
+  .search-container {
+    width: 100%;
+    margin: 0;
+  }
+
+  /* Welcome Banner */
+  .welcome-banner h1 {
+    font-size: 3rem;
+    text-align: center;
+  }
+
+  /* Banner CTA & Arrow */
+  .banner .cta-btn {
+    left: 17%;
+    transform: translateX(-50%);
+    bottom: 40px;
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+
+  .arrow-down {
+    left: 15%;
+    transform: translateX(-50%);
+    bottom: 100px;
+  }
+
+  /* Scan Section */
+  .scanner-content h2 {
+    font-size: 2rem;
+  }
+
+  .text-left, .text-right {
+    font-size: 1.5rem;
+  }
+
+  .scanner-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .scan-btn img {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* Categories */
+  .category-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 20px;
+  }
+
+  .category-item img {
+    height: 100px;
+  }
+
+  /* Search Result Cards */
+  .result-card img {
+    height: 120px;
+  }
+
+  /* Barcode Section */
+  .barcode-content h2 {
+    font-size: 2rem;
+  }
+
+  .barcode-content p {
+    font-size: 1rem;
+  }
+
+  .barcode-btn {
+    font-size: 1rem;
+    padding: 12px 28px;
+  }
+
+  /* Modal */
+  .modal-content {
+    width: 95%;
+    padding: 20px;
+    margin: 40px auto;
+  }
+}
+
+/* Additional adjustments for small devices (phones) */
+@media (max-width: 768px) {
+
+  /* About Section */
+  .about-section {
+    padding: 40px 5vw;
+  }
+
+  .about-section h2 {
+    font-size: 2.2rem;
+  }
+
+  .about-section h3 {
+    font-size: 1.3rem;
+  }
+
+  .about-section ul li {
+    font-size: 0.9rem;
+    padding: 10px 16px;
+  }
+
+  /* Categories */
+  .category-item span {
+    font-size: 12px;
+  }
+
+  /* Scan Product Section */
+  .scanner-content h2 {
+    font-size: 1.8rem;
+  }
+
+  /* Results Grid */
+  #search-results {
+    gap: 1rem;
+  }
+
+  .result-card h4 {
+    font-size: 1rem;
+  }
+
+  .result-card p {
+    font-size: 0.85rem;
+  }
+
+  /* Welcome Banner */
+  .welcome-banner h1 {
+    font-size: 2.5rem;
+  }
+}
