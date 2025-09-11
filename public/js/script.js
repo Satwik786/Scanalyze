@@ -56,11 +56,8 @@ if (cachedName) updateWelcome(cachedName);
   }
 })();
 
-
-
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
-
 
 // --- Barcode scanning & search ---
 import { BrowserMultiFormatReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
@@ -153,7 +150,6 @@ window.searchCategory = (categoryKey) => {
 };
 
 /* scroll to barcode section makes the header change them */
-
 const header = document.querySelector('.header');
 const barcodeSection = document.getElementById('barcodeSection');
 const aboutSection = document.getElementById('about');
@@ -184,7 +180,6 @@ function toggleHeaderEffect() {
 window.addEventListener('scroll', toggleHeaderEffect);
 window.addEventListener('resize', toggleHeaderEffect);
 
-
 // --- Login & Logout handling ---
 loginBtn?.addEventListener("click", () => {
   localStorage.removeItem("guestMode");
@@ -199,8 +194,6 @@ logoutBtn?.addEventListener("click", () => {
 ctaButton.addEventListener("click", () => {
   window.location.href = "/html/t.html"
 });
-
-
 
 // --- Toggle button visibility on page load ---
 function updateAuthButtons() {
@@ -219,3 +212,21 @@ function updateAuthButtons() {
   }
 }
 updateAuthButtons();
+
+// --- Guest Restrictions ---
+function applyGuestRestrictions() {
+  const discover = document.getElementById("discover-link");
+  const preferences = document.getElementById("preferences-link");
+  const categories = document.getElementById("categories-section");
+
+  if (discover) discover.style.display = "none";
+  if (preferences) preferences.style.display = "none";
+  if (categories) categories.style.display = "none";
+
+  updateWelcome("Guest");
+}
+
+// Apply if guest
+if (localStorage.getItem("guestMode")) {
+  applyGuestRestrictions();
+}

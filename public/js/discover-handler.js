@@ -1,9 +1,21 @@
 import { calculateIngredientScore } from './utils/score-logic.js';
 
-// Get login info
+// User Info & Guest Check
 const guestMode = localStorage.getItem("guestMode") === "true";
 const userIdentifier = localStorage.getItem("userIdentifier");
 const userName = localStorage.getItem("userName");
+
+// 🔒 Redirect guests from Discover page
+if (guestMode) {
+  console.warn("Guests cannot access Discover. Redirecting...");
+  window.location.href = "/html/home-page.html";
+}
+
+// 🔹 Redirect if not logged in and not guest
+if (!guestMode && !userIdentifier) {
+  console.error("User not logged in.");
+  window.location.href = "/login";
+}
 
 // Show greeting
 if (userName) {
@@ -11,27 +23,23 @@ if (userName) {
   if (welcomeEl) welcomeEl.textContent = `Welcome, ${userName}!`;
 }
 
-// Redirect if not logged in and not guest
-if (!guestMode && !userIdentifier) {
-  console.error("User not logged in.");
-  window.location.href = "/login";
-}
-
-// Track all products
+// Product Tracking
 let allProducts = [];
 
 // Display loading spinner
 function showLoading() {
   const container = document.getElementById("discoverResults");
-  container.innerHTML = `<div class="loading-spinner"><div></div></div>`;
+  if (container) {
+    container.innerHTML = `<div class="loading-spinner"><div></div></div>`;
+  }
 }
 
-// Load Discover products
+// Load Discover Products
 async function loadDiscoverProducts() {
   showLoading();
   try {
     const url = guestMode
-      ? "/api/discover/guest"
+      ? "/api/discover/guest"  // Guests should not reach here anyway
       : `/api/discover/${encodeURIComponent(userIdentifier)}`;
 
     const res = await fetch(url);
@@ -43,11 +51,11 @@ async function loadDiscoverProducts() {
   } catch (err) {
     console.error("Error loading products:", err);
     const container = document.getElementById("discoverResults");
-    container.innerHTML = "<p>Failed to load products. Please try again later.</p>";
+    if (container) container.innerHTML = "<p>Failed to load products. Please try again later.</p>";
   }
 }
 
-// Search functionality
+// Search Products
 async function searchProducts(query) {
   showLoading();
   try {
@@ -61,11 +69,12 @@ async function searchProducts(query) {
     applyFilters();
   } catch (err) {
     console.error("Search error:", err);
-    document.getElementById("discoverResults").innerHTML = "<p>Search failed. Try again later.</p>";
+    const container = document.getElementById("discoverResults");
+    if (container) container.innerHTML = "<p>Search failed. Try again later.</p>";
   }
 }
 
-// Apply veg/non-veg filter
+// Apply Diet Filters
 function applyFilters() {
   const selectedDiet = document.querySelector('input[name="diet"]:checked')?.value || "all";
   let filtered = [...allProducts];
@@ -85,9 +94,11 @@ function applyFilters() {
   displayDiscover(filtered);
 }
 
-// Display products in a grid
+// Display Products
 function displayDiscover(products) {
   const container = document.getElementById("discoverResults");
+  if (!container) return;
+
   container.innerHTML = "";
 
   if (!products.length) {
@@ -119,25 +130,20 @@ function displayDiscover(products) {
   });
 }
 
-// 🔹 Event listeners
-
-// Search button click
+// Event Listeners
 document.getElementById("searchBtn")?.addEventListener("click", () => {
   const query = document.getElementById("searchInput").value;
   searchProducts(query);
 });
 
-// Search on Enter key
 document.getElementById("searchInput")?.addEventListener("keydown", e => {
   if (e.key === "Enter") searchProducts(e.target.value);
 });
 
-// Diet filter radios
 document.querySelectorAll('input[name="diet"]').forEach(radio => {
   radio.addEventListener("change", applyFilters);
 });
 
-// Filter button dropdown
 const filterBtn = document.getElementById("filterBtn");
 const filterOptions = document.getElementById("filterOptions");
 
@@ -145,12 +151,11 @@ filterBtn?.addEventListener("click", () => {
   filterOptions.classList.toggle("hidden");
 });
 
-// Close filter dropdown when clicking outside
 document.addEventListener("click", (e) => {
   if (!filterBtn.contains(e.target) && !filterOptions.contains(e.target)) {
     filterOptions.classList.add("hidden");
   }
 });
 
-// Run on page load
+// On Page Load
 window.addEventListener("DOMContentLoaded", loadDiscoverProducts);

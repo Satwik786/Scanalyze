@@ -1,6 +1,4 @@
-// -----------------------------
 // Auth Storage Helper
-// -----------------------------
 export function clearAuthStorage() {
   localStorage.removeItem("userId");
   localStorage.removeItem("userIdentifier");
@@ -9,9 +7,7 @@ export function clearAuthStorage() {
   localStorage.removeItem("userName");
 }
 
-// -----------------------------
 // Validate user against backend
-// -----------------------------
 async function validateUser() {
   const userId = localStorage.getItem("userId");
   const userIdentifier = localStorage.getItem("userIdentifier");
@@ -46,32 +42,42 @@ async function validateUser() {
   }
 }
 
-// -----------------------------
-// Helpers
-// -----------------------------
+// Helpers (looser matching)
 function isPreferencesPage(path) {
-  return path.endsWith("/html/preferences.html") || path.endsWith("/preferences");
+  return path.includes("preferences");
 }
 
 function isHomePage(path) {
-  return path.endsWith("/html/home-page.html") || path.endsWith("/home");
+  return path.includes("home-page");
 }
 
 function isLoginPage(path) {
-  return path.endsWith("/html/login.html") || path.endsWith("/login");
+  return path.includes("login");
 }
 
-// -----------------------------
+function isDiscoverPage(path) {
+  return path.includes("discover");
+}
+
 // Centralized redirect handler
-// -----------------------------
 export async function handleAuthRedirect(requiredAuth = true) {
   const currentPage = window.location.pathname;
 
   // 🟢 Guest Mode
   if (localStorage.getItem("guestMode") === "true") {
-    if (!isHomePage(currentPage)) {
+    // 🚫 Block Discover & Preferences first
+    if (isPreferencesPage(currentPage) || isDiscoverPage(currentPage)) {
       window.location.replace("/html/home-page.html");
+      return;
     }
+
+    // ✅ Allowed pages for guests
+    if (isHomePage(currentPage) || isLoginPage(currentPage)) {
+      return;
+    }
+
+    // Default: kick back to home
+    window.location.replace("/html/home-page.html");
     return;
   }
 
