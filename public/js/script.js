@@ -56,41 +56,11 @@ if (cachedName) updateWelcome(cachedName);
   }
 })();
 
-// --- Carousel ---
-const slides = document.querySelector(".slides");
-const images = document.querySelectorAll(".slides img");
-const prevBtn = document.querySelector(".prev");
-const nextBtn = document.querySelector(".next");
+
+
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 
-let index = 0;
-let interval = setInterval(nextSlide, 4000);
-
-function showSlide(i) {
-  index = (i + images.length) % images.length;
-  slides.style.transform = `translateX(${-index * 100}%)`;
-}
-function nextSlide() {
-  showSlide(index + 1);
-}
-function prevSlide() {
-  showSlide(index - 1);
-}
-
-nextBtn?.addEventListener("click", () => {
-  nextSlide();
-  resetInterval();
-});
-prevBtn?.addEventListener("click", () => {
-  prevSlide();
-  resetInterval();
-});
-
-function resetInterval() {
-  clearInterval(interval);
-  interval = setInterval(nextSlide, 3000);
-}
 
 // --- Barcode scanning & search ---
 import { BrowserMultiFormatReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
@@ -187,6 +157,7 @@ window.searchCategory = (categoryKey) => {
 const header = document.querySelector('.header');
 const barcodeSection = document.getElementById('barcodeSection');
 const aboutSection = document.getElementById('about');
+const ctaButton = document.querySelector('.js-cta-btn');
 
 function toggleHeaderEffect() {
   const headerBottom = header.getBoundingClientRect().bottom;
@@ -224,6 +195,12 @@ logoutBtn?.addEventListener("click", () => {
   clearAuthStorage(); // ✅ use centralized cleanup
   window.location.replace("/html/login.html");
 });
+
+ctaButton.addEventListener("click", () => {
+  window.location.href = "/html/t.html"
+});
+
+
 
 // --- Toggle button visibility on page load ---
 function updateAuthButtons() {

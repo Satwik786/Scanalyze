@@ -1,0 +1,167 @@
+/* General Body */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #cce0ff, #e6f7ff);
+    color: #1a1a1a;
+}
+
+/* Header */
+header {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+header p {
+    font-size: 1.2rem;
+    margin-top: 0.5rem;
+}
+
+/* Container */
+.container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Product Cards */
+.product-card {
+    background: linear-gradient(145deg, #ffffff, #e6f0ff);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    margin-bottom: 2rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-align: center;
+}
+
+/* Hover Effect */
+.product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+/* Card Titles */
+.product-card h2 {
+    margin-top: 0;
+    color: #1e3c72;
+}
+
+/* Product Images Section */
+.product-images {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.product-images img {
+    max-width: 350px;
+    border-radius: 8px;
+    border: 2px solid #2a5298;
+}
+
+/* Product Details Section – Prominent */
+.product-details {
+    margin-top: 1rem;
+    text-align: center;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    border: 2px solid #2a5298;
+}
+
+.product-details p {
+    font-size: 1.2rem; /* bigger font size */
+    line-height: 1.8; /* more spacing for readability */
+    margin: 0.7rem 0; /* more space between lines */
+}
+
+.truth-highlight {
+    font-weight: bold;
+    color: #004080;
+    font-size: 1.3rem; /* slightly bigger to draw attention */
+}
+
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #2a5298, #1e3c72);
+    color: white;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+footer a {
+    color: #a3c0ff;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Lists */
+ul {
+    margin: 0.5rem 0 0.5rem 1.5rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .product-images img {
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-images {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .product-images img {
+        max-width: 80%;
+        margin-bottom: 1rem;
+    }
+
+    .product-details {
+        text-align: center;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    header p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-card {
+        padding: 1rem;
+    }
+
+    .truth-highlight {
+        font-size: 1rem;
+    }
+
+    footer p {
+        font-size: 0.9rem;
+    }
+}
