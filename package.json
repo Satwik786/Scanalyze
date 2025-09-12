@@ -1,9 +1,11 @@
 {
-  "name": "sacanalyze-backend",
+  "name": "scanalyze",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
+  "main": "backend/server.js",
   "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
