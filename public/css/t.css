@@ -6,8 +6,9 @@ body {
     color: #1a1a1a;
 }
 
+/* ===== HEADER ===== */
 header {
-  background: linear-gradient(90deg, #0ea5e9, #0284c7);
+    background: linear-gradient(90deg, #0ea5e9, #0284c7);
     color: white;
     padding: 2rem 1rem;
     text-align: center;
@@ -18,6 +19,36 @@ header h1 {
     font-size: 2.5rem;
 }
 
+/* ===== INTRO SECTION ===== */
+.intro {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: linear-gradient(145deg, #ffffff, #f0f8ff);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.intro h2 {
+    margin-top: 0;
+    color: #1e3c72;
+    font-size: 2rem;
+}
+
+.intro p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin: 0.8rem 0;
+}
+
+.intro .highlight {
+    font-weight: bold;
+    color: #004080;
+    font-size: 1.2rem;
+}
+
+/* ===== PRODUCT CARDS ===== */
 .container {
     max-width: 1000px;
     margin: 2rem auto;
@@ -78,12 +109,35 @@ header h1 {
     font-size: 1.3rem; 
 }
 
+/* ===== CLOSING NOTE ===== */
+.closing-note {
+    max-width: 900px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background: linear-gradient(145deg, #ffffff, #f0f8ff);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+}
 
+.closing-note h2 {
+    margin-top: 0;
+    color: #1e3c72;
+    font-size: 2rem;
+}
+
+.closing-note p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin: 0.8rem 0;
+}
+
+/* ===== FOOTER ===== */
 footer {
     text-align: center;
     margin-top: 2rem;
     padding: 1rem;
-    background: linear-gradient(135deg, #2a5298, #1e3c72);
+    background: linear-gradient(135deg, #0f172a, #14192e);
     color: white;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
@@ -106,6 +160,7 @@ li {
     margin-bottom: 0.5rem;
 }
 
+/* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
     .product-images img {
         max-width: 300px;
@@ -131,7 +186,11 @@ li {
         font-size: 2rem;
     }
 
-    header p {
+    .intro h2, .closing-note h2 {
+        font-size: 1.6rem;
+    }
+
+    .intro p, .closing-note p {
         font-size: 1rem;
     }
 }

@@ -1,6 +1,5 @@
 // 🔑 Import centralized auth handler
-import { handleAuthRedirect } from "./auth.js";
-import { clearAuthStorage } from "./auth.js"; // ✅ reuse cleanup
+import { handleAuthRedirect, clearAuthStorage } from "./auth.js";
 
 // 🚀 Run auth check (home requires authentication)
 handleAuthRedirect(true);
@@ -30,7 +29,7 @@ if (cachedName) updateWelcome(cachedName);
         const res = await fetch("/api/preferences/get", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ identifier })
+          body: JSON.stringify({ identifier }),
         });
 
         if (res.ok) {
@@ -142,18 +141,28 @@ async function performSearch(query) {
   }
 }
 
-// --- Category search ---
-window.searchCategory = (categoryKey) => {
-  window.location.href = `/html/search.html?category=${encodeURIComponent(
-    categoryKey
-  )}`;
-};
+// --- Barcode button navigation ---
+document.getElementById("barcode-btn")?.addEventListener("click", () => {
+  window.location.href = "/html/barcodes.html";
+});
 
-/* scroll to barcode section makes the header change them */
-const header = document.querySelector('.header');
-const barcodeSection = document.getElementById('barcodeSection');
-const aboutSection = document.getElementById('about');
-const ctaButton = document.querySelector('.js-cta-btn');
+// --- Category clicks ---
+document.querySelectorAll(".category-item").forEach((item) => {
+  item.addEventListener("click", () => {
+    const category = item.dataset.category;
+    if (category) {
+      window.location.href = `/html/search.html?category=${encodeURIComponent(
+        category
+      )}`;
+    }
+  });
+});
+
+/* scroll to barcode section makes the header change theme */
+const header = document.querySelector(".header");
+const barcodeSection = document.getElementById("barcodeSection");
+const aboutSection = document.getElementById("about");
+const ctaButton = document.querySelector(".js-cta-btn");
 
 function toggleHeaderEffect() {
   const headerBottom = header.getBoundingClientRect().bottom;
@@ -166,19 +175,19 @@ function toggleHeaderEffect() {
     (headerBottom >= barcodeRect.top && headerBottom <= barcodeRect.bottom) ||
     (headerBottom >= aboutRect.top && headerBottom <= aboutRect.bottom)
   ) {
-    header.style.backgroundColor = 'rgba(15, 23, 42, 0.95)';
-    header.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
-    header.classList.add('header-dark');
+    header.style.backgroundColor = "rgba(15, 23, 42, 0.95)";
+    header.style.boxShadow = "0 4px 20px rgba(0,0,0,0.5)";
+    header.classList.add("header-dark");
   } else {
     // Default semi-glass transparent
-    header.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-    header.style.boxShadow = '0 2px 10px rgba(14, 165, 233, 0.1)';
-    header.classList.remove('header-dark');
+    header.style.backgroundColor = "rgba(255, 255, 255, 0.3)";
+    header.style.boxShadow = "0 2px 10px rgba(14, 165, 233, 0.1)";
+    header.classList.remove("header-dark");
   }
 }
 
-window.addEventListener('scroll', toggleHeaderEffect);
-window.addEventListener('resize', toggleHeaderEffect);
+window.addEventListener("scroll", toggleHeaderEffect);
+window.addEventListener("resize", toggleHeaderEffect);
 
 // --- Login & Logout handling ---
 loginBtn?.addEventListener("click", () => {
@@ -191,8 +200,8 @@ logoutBtn?.addEventListener("click", () => {
   window.location.replace("/html/login.html");
 });
 
-ctaButton.addEventListener("click", () => {
-  window.location.href = "/html/t.html"
+ctaButton?.addEventListener("click", () => {
+  window.location.href = "/html/t.html";
 });
 
 // --- Toggle button visibility on page load ---

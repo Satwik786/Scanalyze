@@ -65,9 +65,10 @@
     <div class="barcode-content">
       <h2>No Barcode Image?</h2>
       <p>Click the button below or use the <strong>“Barcode Images”</strong> tab in the navigation to download high-quality barcode images for packaged foods instantly.</p>
-      <button class="barcode-btn" onclick="window.location.href='/html/barcodes.html'">
+      <button class="barcode-btn" id="barcode-btn">
         Get Barcode Images 🔖
       </button>
+
     </div>
   </section>
 
@@ -76,38 +77,39 @@
   <section class="categories" id="categories-section">
     <h2>Categories</h2>
     <div class="category-grid">
-      <div class="category-item" onclick="searchCategory('biscuits')">
+      <div class="category-item" data-category="biscuits">
         <img src="/images/biscuit.png" alt="Biscuits"><span>Biscuits</span>
       </div>
-      <div class="category-item" onclick="searchCategory('frozen foods')">
-        <img src="/images/frozen foods.png" alt="Ice cream"><span>Frozen Foods</span>
+      <div class="category-item" data-category="frozen foods">
+        <img src="/images/frozen foods.png" alt="Frozen Foods"><span>Frozen Foods</span>
       </div>
-      <div class="category-item" onclick="searchCategory('chocolates')">
+      <div class="category-item" data-category="chocolates">
         <img src="/images/chocolates.png" alt="Chocolates"><span>Chocolates</span>
       </div>
-      <div class="category-item" onclick="searchCategory('cold drinks juices')">
+      <div class="category-item" data-category="cold drinks juices">
         <img src="/images/juices.png" alt="Cold Drinks"><span>Cold Drinks & Juices</span>
       </div>
-      <div class="category-item" onclick="searchCategory('dairy bread eggs')">
+      <div class="category-item" data-category="dairy bread eggs">
         <img src="/images/dairy bread and eggs.png" alt="Dairy"><span>Dairy, Bread & Eggs</span>
       </div>
-      <div class="category-item" onclick="searchCategory('instant food')">
+      <div class="category-item" data-category="instant food">
         <img src="/images/instant food.png" alt="Instant Food"><span>Instant Food</span>
       </div>
-      <div class="category-item" onclick="searchCategory('munchies')">
+      <div class="category-item" data-category="munchies">
         <img src="/images/munchies.png" alt="Munchies"><span>Munchies</span>
       </div>
-      <div class="category-item" onclick="searchCategory('cakes bakes')">
+      <div class="category-item" data-category="cakes bakes">
         <img src="/images/cakes and bakes.png" alt="Cakes"><span>Cakes & Bakes</span>
       </div>
-      <div class="category-item" onclick="searchCategory('rice atta dals')">
+      <div class="category-item" data-category="rice atta dals">
         <img src="/images/rice atta and dals.png" alt="Rice"><span>Rice, Atta & Dals</span>
       </div>
-      <div class="category-item" onclick="searchCategory('spices')">
-        <img src="/images/spices and masalas.png" alt="masalas"><span>Spices / Masalas</span>
+      <div class="category-item" data-category="spices">
+        <img src="/images/spices and masalas.png" alt="Masalas"><span>Spices / Masalas</span>
       </div>
     </div>
   </section>
+
 
  <section id="about" class="about-section">
     <h2>About Scanalyze</h2>
