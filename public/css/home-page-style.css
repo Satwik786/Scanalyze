@@ -719,8 +719,23 @@ main {
     padding: 10px 15px;
   }
 
+.nav-links a[href="#about"] {
+  display: none;
+}
+
+  /* Logout button at top-right corner on mobile */
+.logout-btn, .login-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  z-index: 999;
+}
+
+
+  /* Nav links in a single line for mobile */
   .nav-links {
-    flex-direction: column;
+    flex-direction: row; /* Change from column to row */
+    flex-wrap: wrap; /* Allow wrapping if screen is too small */
     gap: 10px;
     margin-left: 0;
   }
@@ -740,15 +755,14 @@ main {
   .banner .cta-btn {
     left: 17%;
     transform: translateX(-50%);
-    bottom: 40px;
-    font-size: 14px;
-    padding: 10px 20px;
+    bottom: 20px;
+    font-size: 12px; /* smaller for mobile */
+    padding: 8px 16px; /* smaller padding */
   }
 
+  /* Remove bounce triangle on mobile */
   .arrow-down {
-    left: 15%;
-    transform: translateX(-50%);
-    bottom: 100px;
+    display: none;
   }
 
   /* Scan Section */
@@ -854,5 +868,11 @@ main {
   /* Welcome Banner */
   .welcome-banner h1 {
     font-size: 2.5rem;
+  }
+
+  /* Further reduce Check Now button for small phones */
+  .banner .cta-btn {
+    font-size: 11px;
+    padding: 6px 12px;
   }
 }
