@@ -534,120 +534,82 @@ main {
   margin-top: 0.5rem;
 }
 
-/* Dark theme About Section */
+/* ===== About Section Wrapper ===== */
 .about-section {
-  padding: 80px 10vw;
-  background-color: #0f172a; /* dark navy background */
-  color: #e2e8f0; /* light text */
-  font-family: 'Inter', sans-serif;
+  background: linear-gradient(to bottom, #0f172a, #111827);
+   padding: 4rem 10vw;
+  margin: 0 auto;
+  color: #e2e8f0;
 }
 
-.about-section h2 {
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 20px;
+/* ===== Section Header ===== */
+.about-section header h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
   background: linear-gradient(90deg, #0ea5e9, #0284c7);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: 1px;
+  -webkit-text-fill-color: transparent;  /* Gradient text effect */
   text-align: center;
+  margin-top: 0%;
 }
 
-.about-section h3 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-top: 40px;
-  margin-bottom: 20px;
-  color: #22d3ee;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.about-section h3::before {
-  content: "💡"; /* default icon */
-  font-size: 1.4rem;
-}
-
-.about-section h3:nth-of-type(2)::before {
-  content: "🧑‍🤝‍🧑";
-}
-
-.about-section h3:nth-of-type(3)::before {
-  content: "🛠️";
-}
-
-.about-section h3:nth-of-type(4)::before {
-  content: "🌱";
-}
-
-.about-section p {
+.about-section header p {
   font-size: 1.1rem;
-  line-height: 1.8;
-  margin-bottom: 20px;
+  color: #cbd5e1;  /* Softer gray for paragraph text */
+  margin-bottom: 3rem;
 }
 
-.about-section ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 30px 0;
+/* ===== Article Headings ===== */
+.about-section article h3 {
+  font-size: 1.6rem;
+  color: #38bdf8;                  /* Light blue accent for subheadings */
+  border-bottom: 4px solid #0ea5e9;
+  padding-left: 0.75rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
 }
 
-/* Nested list styling for About Section */
-.about-section ul li {
-  background: #1e293b; /* card-like dark block */
-  padding: 14px 20px;   /* more padding for readability */
-  border-radius: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* ===== Paragraphs ===== */
+.about-section article p {
+  font-size: 1.1rem;
+  color: #e2e8f0;                  /* Main light text for readability */
+  margin-bottom: 1.5rem;
 }
 
-.about-section ul li:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(34, 211, 238, 0.4);
+/* ===== Lists ===== */
+.about-section ul,
+.about-section ol {
+  margin-left: 1.5rem;
+  padding-left: 0;
 }
 
-/* Nested ul inside a li */
-.about-section ul li ul {
-  margin-top: 10px;      /* spacing from parent text */
-  margin-left: 20px;     /* indentation for hierarchy */
-  padding-left: 0;       /* remove default padding */
+.about-section li {
+  margin-bottom: 0.5rem;
+  color: #e2e8f0;                  /* Keep list text bright */
 }
 
-.about-section ul li ul li {
-  background: #111827;   /* slightly darker for nested items */
-  padding: 10px 16px;    /* padding inside nested items */
-  margin-bottom: 8px;    /* spacing between nested items */
-  font-size: 0.95rem;    /* slightly smaller font for sub-items */
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+.about-section ul ul {
+  margin-top: 0.5rem;
+  color: #94a3b8;                  /* Slightly dimmer for nested lists */
+  list-style-type: circle;
 }
 
-.about-section ul li ul li:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(34, 211, 238, 0.3);
+/* ===== Links & Strong Text ===== */
+.about-section a {
+  color: #38bdf8;
+  text-decoration: none;
 }
 
-
-@media (max-width: 768px) {
-  .about-section {
-    padding: 40px 5vw;
-  }
-
-  .about-section h2 {
-    font-size: 2.5rem;
-  }
-
-  .about-section h3 {
-    font-size: 1.5rem;
-  }
-
-  .about-section ul li {
-    font-size: 0.95rem;
-  }
+.about-section a:hover,
+.about-section a:focus {
+  text-decoration: underline;
+  color: #0ea5e9;
 }
 
+.about-section strong {
+  color: #38bdf8;
+  font-weight: 600;
+}
 
 #productImg {
   width: 200px;
