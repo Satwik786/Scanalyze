@@ -14,30 +14,28 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Fix __dirname for ES modules
+// dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Connect to MongoDB
 connectDB();
 
 app.use(cors());
 app.use(express.json());
 
-// Serve static files
 app.use(express.static(path.join(__dirname, "../public")));
 
-// 🧪 Temporary test route for preferences API
-app.post("/api/preferences/test", (req, res) => {
-  res.json({ message: "Test route works!" });
-});
+//  Temporary test route for preferences API
+// app.post("/api/preferences/test", (req, res) => {
+//   res.json({ message: "Test route works!" });
+// });
 
-// ✅ Import preferences route (keep it after test route)
+//  Import preferences route (keep it after test route)
 app.use("/api/preferences", preferencesRoute);
 
 app.use("/api/discover", discoverRoute);
 
-// 📦 Category API route
+//  Category API route
 app.get("/api/category/:slug", async (req, res) => {
   const { slug } = req.params;
   const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=&tagtype_0=categories&tag_contains_0=contains&tag_0=${encodeURIComponent(
@@ -55,7 +53,6 @@ app.get("/api/category/:slug", async (req, res) => {
   }
 });
 
-// 🔍 Search API route (now with India restriction)
 app.get("/api/search", async (req, res) => {
   const searchTerms = req.query.q || "";
   const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
@@ -73,7 +70,7 @@ app.get("/api/search", async (req, res) => {
   }
 });
 
-// 🧪 Discover API for guests (Indian products only)
+//  Discover API for guests 
 app.get("/api/discover/guest", async (req, res) => {
   try {
     const url = `https://world.openfoodfacts.org/cgi/search.pl?tagtype_0=countries&tag_contains_0=contains&tag_0=india&json=1&page_size=20`;
@@ -88,7 +85,7 @@ app.get("/api/discover/guest", async (req, res) => {
   }
 });
 
-// 🧪 Product details API with preference check
+//  Product details API with preference check
 app.get("/api/product/:code", async (req, res) => {
   const { code } = req.params;
   const identifier = req.query.identifier;
@@ -126,27 +123,22 @@ app.get("/api/product/:code", async (req, res) => {
   }
 });
 
-// Serve login.html
 app.get("/login", (req, res) => {
   res.redirect("/html/login.html");
 });
 
-// Serve home-page.html
 app.get("/home", (req, res) => {
   res.redirect("/html/home-page.html");
 });
 
-// Fallback route
 app.get("/", (req, res) => {
   res.redirect("/html/login.html");
 });
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).send("404 - Page Not Found");
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

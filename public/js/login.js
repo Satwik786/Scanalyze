@@ -9,19 +9,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const guestBtn = document.querySelector(".guest-btn");
 
   if (!inputField || !verifyBtn) {
-    console.error("⚠️ Input field or verify button not found!");
+    console.error("Input field or verify button not found!");
     return;
   }
 
-  inputField.addEventListener("keydown", (e) => {
+  inputField.addEventListener("keypress", (e) => {
     if (e.key === "Enter") verifyBtn.click();
   });
 
-  function isValidInput(value) {
-    const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,}$/; // extended regex
-    const phonePattern = /^\d{10}$/;
-    return emailPattern.test(value) || phonePattern.test(value);
+ function isValidInput(value) {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+  const phonePattern = /^[6-9]\d{9}$/;
+
+  if (emailPattern.test(value)) return true;
+
+  if (phonePattern.test(value)) {
+    // Block same digit repeated 10 times (e.g., 0000000000)
+    if (/^(\d)\1{9}$/.test(value)) return false;
+    return true;
   }
+
+  return false;
+}
+
 
   verifyBtn.addEventListener("click", async () => {
     let userInput = inputField.value.trim();
