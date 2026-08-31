@@ -1,0 +1,85 @@
+﻿D:\Scanalyze
+│
+├── .env
+├── .gitignore
+├── package-lock.json
+├── package.json
+├── README.md
+│
+├── backend
+│   ├── db.js
+│   ├── server.js
+│   │
+│   ├── models
+│   │   └── User.js
+│   │
+│   └── routes
+│       ├── discover.js
+│       └── preferences.js
+│
+└── public
+    │
+    ├── css
+    │   ├── barcodes.css
+    │   ├── home-page-style.css
+    │   ├── login-style.css
+    │   ├── main-page-discover.css
+    │   ├── preferences.css
+    │   ├── product-page-style.css
+    │   ├── product.css
+    │   └── t.css
+    │
+    ├── html
+    │   ├── barcodes.html
+    │   ├── discover.html
+    │   ├── home-page.html
+    │   ├── login.html
+    │   ├── preferences.html
+    │   ├── product.html
+    │   ├── search.html
+    │   └── t.html
+    │
+    ├── images
+    │   ├── biscuit.png
+    │   ├── bournvita-ingredients.jpg
+    │   ├── bournvita.jpg
+    │   ├── cakes and bakes.png
+    │   ├── chocolates.png
+    │   ├── dairy bread and eggs.png
+    │   ├── default-product.png
+    │   ├── frooti-ingredients.jpg
+    │   ├── frooti.jpg
+    │   ├── frozen foods.png
+    │   ├── instant food.png
+    │   ├── juices.png
+    │   ├── kellogg's-chocos-ingredients.jpg
+    │   ├── kellogg's-chocos.jpg
+    │   ├── kissan-spread-ingredients.webp
+    │   ├── kissan-spread-label.jpg
+    │   ├── kissan-spread.jpg
+    │   ├── kurkure-corn-puffs-ingredients.png
+    │   ├── kurkure-corn-puffs.jpg
+    │   ├── maggi ingredients.png
+    │   ├── maggi.jpg
+    │   ├── munchies.png
+    │   ├── rice atta and dals.png
+    │   ├── scanalyze.png
+    │   ├── scanner.webp
+    │   ├── slide 3.png
+    │   ├── spices and masalas.png
+    │   ├── tropicana-real-fruit-juice-ingredients.jpg
+    │   └── tropicana-real-fruit-juice.jpg
+    │
+    └── js
+        ├── auth.js
+        ├── barcodes.js
+        ├── discover-handler.js
+        ├── login.js
+        ├── preferences.js
+        ├── product.js
+        ├── script.js
+        ├── search-handler.js
+        │
+        └── utils
+            ├── allergens.js
+            └── score-logic.js
