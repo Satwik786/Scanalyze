@@ -5,17 +5,24 @@
 ├── package-lock.json
 ├── package.json
 ├── README.md
+├── scanalyze-structure.txt
 │
 ├── backend
+│   ├── .env
 │   ├── db.js
 │   ├── server.js
+│   ├── import-products.js
+│   ├── check-product.js
 │   │
 │   ├── models
-│   │   └── User.js
+│   │   ├── User.js
+│   │   └── ProductIndex.js
 │   │
 │   └── routes
 │       ├── discover.js
-│       └── preferences.js
+│       ├── preferences.js
+│       ├── local-search.js
+│       └── category.js
 │
 └── public
     │
@@ -67,7 +74,6 @@
     │   ├── scanner.webp
     │   ├── slide 3.png
     │   ├── spices and masalas.png
-    │   ├── tropicana-real-fruit-juice-ingredients.jpg
     │   └── tropicana-real-fruit-juice.jpg
     │
     └── js

@@ -2,11 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("searchBtn");
   const searchInput = document.getElementById("searchInput");
 
-  // Click search button
-  searchBtn.addEventListener("click", searchProducts);
+  searchBtn?.addEventListener("click", searchProducts);
 
-  // Press Enter
-  searchInput.addEventListener("keypress", (event) => {
+  searchInput?.addEventListener("keypress", (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
       searchProducts();
@@ -31,21 +29,31 @@ async function searchProducts() {
   }
 
   try {
-    spinner.style.display = "block"; // show spinner
+    spinner.style.display = "block";
 
-    // Search in Indian database first
-    let url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=10&tagtype_0=countries&tag_contains_0=contains&tag_0=india`;
-    let res = await fetch(url);
-    let data = await res.json();
-    let products = data.products || [];
+    const url =
+      `/api/barcode-search?q=${encodeURIComponent(query)}`;
 
-    // If no Indian products, fallback to global
-    if (products.length === 0) {
-      url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=10`;
-      res = await fetch(url);
-      data = await res.json();
-      products = data.products || [];
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      let message = "Failed to search products";
+
+      try {
+        const errorData = await res.json();
+
+        if (errorData.error) {
+          message = errorData.error;
+        }
+      } catch {
+        // Keep default error message
+      }
+
+      throw new Error(message);
     }
+
+    const data = await res.json();
+    const products = data.products || [];
 
     if (products.length === 0) {
       searchInput.value = "";
@@ -54,33 +62,59 @@ async function searchProducts() {
       return;
     }
 
-    products.forEach(product => {
-      if (!product.code) return;
+    products.forEach((product) => {
+      const code =
+        product.barcode ||
+        product.code ||
+        "";
 
-      const code = product.code;
-      const name = product.product_name || "Unnamed Product";
-      const imgUrl = product.image_front_small_url || "";
+      if (!code) {
+        return;
+      }
 
-      // Create product card
-      const item = document.createElement("div");
+      const name =
+        product.name ||
+        product.product_name ||
+        "Unnamed Product";
+
+      const imgUrl =
+        product.image ||
+        product.image_front_small_url ||
+        product.image_front_url ||
+        "";
+
+      const item =
+        document.createElement("div");
+
       item.className = "barcode-item";
 
-      // Product image
       if (imgUrl) {
-        const img = document.createElement("img");
+        const img =
+          document.createElement("img");
+
         img.src = imgUrl;
         img.alt = name;
+
+        img.onerror = () => {
+          img.style.display = "none";
+        };
+
         item.appendChild(img);
       }
 
-      // Title
-      const title = document.createElement("h3");
+      const title =
+        document.createElement("h3");
+
       title.textContent = name;
+
       item.appendChild(title);
 
-      // Barcode
-      const canvas = document.createElement("canvas");
-      canvas.id = "barcode-" + code;
+      const canvas =
+        document.createElement("canvas");
+
+      canvas.id =
+        "barcode-" + code;
+
       item.appendChild(canvas);
 
       try {
@@ -89,35 +123,57 @@ async function searchProducts() {
           lineColor: "#000",
           width: 2,
           height: 100,
-          displayValue: true
+          displayValue: true,
         });
-      } catch (err) {
-        JsBarcode(canvas, code, {
-          format: "CODE128",
-          lineColor: "#000",
-          width: 2,
-          height: 100,
-          displayValue: true
-        });
+      } catch {
+        try {
+          JsBarcode(canvas, code, {
+            format: "CODE128",
+            lineColor: "#000",
+            width: 2,
+            height: 100,
+            displayValue: true,
+          });
+        } catch (barcodeError) {
+          console.error(
+            "Barcode generation error:",
+            barcodeError
+          );
+        }
       }
 
-      // Download button
-      const downloadBtn = document.createElement("a");
-      downloadBtn.textContent = "Download Barcode";
-      downloadBtn.className = "download-btn";
-      downloadBtn.href = canvas.toDataURL("image/png");
-      downloadBtn.download = `barcode-${code}.png`;
+      const downloadBtn =
+        document.createElement("a");
+
+      downloadBtn.textContent =
+        "Download Barcode";
+
+      downloadBtn.className =
+        "download-btn";
+
+      downloadBtn.href =
+        canvas.toDataURL("image/png");
+
+      downloadBtn.download =
+        `barcode-${code}.png`;
+
       item.appendChild(downloadBtn);
 
       gallery.appendChild(item);
     });
-
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Barcode search error:",
+      error
+    );
+
     searchInput.value = "";
-    searchInput.placeholder = "⚠ Error fetching products";
+
+    searchInput.placeholder =
+      "⚠ " + error.message;
+
     searchInput.classList.add("error");
   } finally {
-    spinner.style.display = "none"; // hide spinner
+    spinner.style.display = "none";
   }
 }

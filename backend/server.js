@@ -1,20 +1,25 @@
 import express from "express";
-import axios from "axios";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import User from "./models/User.js";
+import ProductIndex from "./models/ProductIndex.js";
 import discoverRoute from "./routes/discover.js";
 import connectDB from "./db.js";
 import dotenv from "dotenv";
 import preferencesRoute from "./routes/preferences.js";
+import categoryRoute from "./routes/category.js";
+import productSearchRoute from "./routes/productSearch.js";
+import {
+  searchProducts,
+  getProductByBarcode,
+} from "./services/openFoodFacts.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -25,101 +30,139 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "../public")));
 
-//  Temporary test route for preferences API
-// app.post("/api/preferences/test", (req, res) => {
-//   res.json({ message: "Test route works!" });
-// });
-
-//  Import preferences route (keep it after test route)
 app.use("/api/preferences", preferencesRoute);
-
+app.use("/api/category", categoryRoute);
+app.use("/api/local-search", productSearchRoute);
 app.use("/api/discover", discoverRoute);
-
-//  Category API route
-app.get("/api/category/:slug", async (req, res) => {
-  const { slug } = req.params;
-  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=&tagtype_0=categories&tag_contains_0=contains&tag_0=${encodeURIComponent(
-    slug
-  )}&tagtype_1=countries&tag_contains_1=contains&tag_1=india&json=1`;
-
-  try {
-    const response = await axios.get(url, {
-      headers: { "User-Agent": "ScanalyzeApp/1.0" },
-    });
-    res.json(response.data);
-  } catch (error) {
-    console.error("Category API error:", error.message);
-    res.status(500).json({ error: "Failed to fetch category data" });
-  }
-});
 
 app.get("/api/search", async (req, res) => {
   const searchTerms = req.query.q || "";
-  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
-    searchTerms
-  )}&tagtype_0=countries&tag_contains_0=contains&tag_0=india&search_simple=1&action=process&json=1&page_size=20`;
+
+  if (!searchTerms.trim()) {
+    return res.status(400).json({
+      error: "Search query is required",
+    });
+  }
 
   try {
-    const response = await axios.get(url, {
-      headers: { "User-Agent": "ScanalyzeApp/1.0" },
-    });
-    res.json(response.data);
+    const data = await searchProducts(searchTerms, 20);
+
+    res.json(data);
   } catch (error) {
-    console.error("Search API error:", error.message);
-    res.status(500).json({ error: "Failed to perform search" });
-  }
-});
+    console.error("Search API error:", error);
 
-//  Discover API for guests 
-app.get("/api/discover/guest", async (req, res) => {
-  try {
-    const url = `https://world.openfoodfacts.org/cgi/search.pl?tagtype_0=countries&tag_contains_0=contains&tag_0=india&json=1&page_size=20`;
-    const response = await axios.get(url, {
-      headers: { "User-Agent": "ScanalyzeApp/1.0" },
+    res.status(error.status || 502).json({
+      error:
+        error.message || "Failed to perform search",
     });
-    const products = response.data.products || [];
-    res.json(products);
-  } catch (err) {
-    console.error("Guest Discover API error:", err.message);
-    res.status(500).json({ error: "Failed to fetch Discover products" });
   }
 });
 
-//  Product details API with preference check
 app.get("/api/product/:code", async (req, res) => {
   const { code } = req.params;
   const identifier = req.query.identifier;
-  const productUrl = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(
-    code
-  )}.json`;
 
   try {
-    const response = await axios.get(productUrl, {
-      headers: { "User-Agent": "ScanalyzeApp/1.0" },
-    });
+    const data = await getProductByBarcode(code);
 
-    const product = response.data.product;
+    const product = data?.product || data;
     let warnings = [];
 
-    if (identifier) {
+    if (identifier && product) {
       const user = await User.findOne({
-        $or: [{ email: identifier }, { phone: identifier }],
+        $or: [
+          { email: identifier },
+          { phone: identifier },
+          { identifier },
+        ],
       });
 
-      if (user && user.preferences && product.ingredients_text) {
-        const productIngredients = product.ingredients_text.toLowerCase();
+      if (
+        user?.preferences?.length &&
+        product.ingredients_text
+      ) {
+        const productIngredients =
+          product.ingredients_text.toLowerCase();
+
         user.preferences.forEach((pref) => {
-          if (productIngredients.includes(pref.toLowerCase())) {
+          if (
+            pref &&
+            productIngredients.includes(
+              pref.toLowerCase().trim()
+            )
+          ) {
             warnings.push(pref);
           }
         });
       }
     }
 
-    res.json({ product, warnings });
+    res.json({
+      product,
+      warnings,
+    });
   } catch (error) {
-    console.error("Product API error:", error.message);
-    res.status(500).json({ error: "Failed to fetch product data" });
+    console.error("Product API error:", error);
+
+    res.status(error.status || 502).json({
+      error:
+        error.message ||
+        "Failed to fetch product data",
+    });
+  }
+});
+
+app.get("/api/barcode-search", async (req, res) => {
+  const query = (req.query.q || "").trim();
+
+  if (!query) {
+    return res.status(400).json({
+      error: "Search query is required",
+    });
+  }
+
+  try {
+    const products = await ProductIndex.find(
+      {
+        active: true,
+        country: "india",
+        $text: {
+          $search: query,
+        },
+      },
+      {
+        barcode: 1,
+        name: 1,
+        brand: 1,
+        image: 1,
+        searchNames: 1,
+        categories: 1,
+        _id: 0,
+      }
+    )
+      .sort({
+        score: {
+          $meta: "textScore",
+        },
+      })
+      .limit(20)
+      .lean();
+
+    res.json({
+      products,
+      count: products.length,
+      source: "scanalyze",
+    });
+  } catch (error) {
+    console.error(
+      "Barcode search API error:",
+      error
+    );
+
+    res.status(500).json({
+      error:
+        "Failed to search Scanalyze product database",
+    });
   }
 });
 
@@ -136,9 +179,13 @@ app.get("/", (req, res) => {
 });
 
 app.use((req, res) => {
-  res.status(404).send("404 - Page Not Found");
+  res.status(404).send(
+    "404 - Page Not Found"
+  );
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(
+    `Server running at http://localhost:${PORT}`
+  );
 });
