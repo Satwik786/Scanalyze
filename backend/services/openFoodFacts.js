@@ -145,6 +145,7 @@ function productFields() {
     "ingredients_text",
     "ingredients_tags",
     "ingredients_analysis_tags",
+    "additives_tags",
     "allergens_tags",
     "nutriments",
     "nutrition_grades",
@@ -152,10 +153,9 @@ function productFields() {
     "nova_group",
     "categories",
     "categories_tags_en",
-    "labels_tags_en",
+    "labels_tags_en"
   ].join(",");
 }
-
 export async function searchProducts(query, limit = 20, country = "india") {
   const normalizedQuery = query?.trim();
 

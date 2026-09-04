@@ -30,7 +30,6 @@ body {
 .nav-links a {
   color: white;
   font-size: 25px;
-  
 }
 
 .nav-links a:hover {
@@ -68,25 +67,189 @@ body {
   margin-bottom: 1rem;
 }
 
-/* Rating block */
+/* Rating */
+.rating-section {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
 .rating-score {
-  font-size: 1.4rem;
-  margin-bottom: 0.8rem;
+  width: 100%;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
 }
 
-.rating-red {
-  color: #d32f2f;
-  font-weight: bold;
+.rating-overall {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.rating-orange {
-  color: #f57c00;
-  font-weight: bold;
+.rating-overall > div:first-child {
+  min-width: 0;
 }
 
-.rating-green {
+.rating-overall strong {
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.rating-score-number {
+  font-size: 2.4rem;
+  line-height: 1.1;
+  font-weight: 700;
+  margin-top: 0.2rem;
+}
+
+.rating-score-number span {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.rating-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 0.25rem;
+}
+
+.rating-summary strong {
+  font-size: 1.2rem;
+}
+
+.rating-summary span {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Overall score colors */
+.rating-score.rating-green {
+  border-left: 5px solid #388e3c;
+}
+
+.rating-score.rating-green .rating-score-number,
+.rating-score.rating-green .rating-summary strong {
   color: #388e3c;
-  font-weight: bold;
+}
+
+.rating-score.rating-orange {
+  border-left: 5px solid #f57c00;
+}
+
+.rating-score.rating-orange .rating-score-number,
+.rating-score.rating-orange .rating-summary strong {
+  color: #f57c00;
+}
+
+.rating-score.rating-red {
+  border-left: 5px solid #d32f2f;
+}
+
+.rating-score.rating-red .rating-score-number,
+.rating-score.rating-red .rating-summary strong {
+  color: #d32f2f;
+}
+
+/* Rating factors */
+.rating-factors {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.rating-factor {
+  padding: 0.8rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.7rem;
+}
+
+.rating-factor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.95rem;
+}
+
+.rating-factor-header > span:first-child {
+  color: #334155;
+}
+
+.rating-factor-header > span:last-child {
+  font-weight: 700;
+  color: #334155;
+}
+
+.rating-factor-reasons {
+  margin: 0.5rem 0 0 1.5rem;
+  padding: 0;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.rating-factor-reasons li {
+  margin-bottom: 0.15rem;
+}
+
+/* Rating warnings */
+.rating-warnings {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  background: #fff8e1;
+  border-left: 4px solid #f59e0b;
+  border-radius: 0.5rem;
+  color: #7c5700;
+  font-size: 0.85rem;
+}
+
+.rating-warnings strong {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.rating-warnings ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.rating-warnings li {
+  margin-bottom: 0.2rem;
+}
+
+/* Rating errors */
+.rating-errors {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  background: #fff0f0;
+  border-left: 4px solid #d32f2f;
+  border-radius: 0.5rem;
+  color: #9b1c1c;
+  font-size: 0.85rem;
+}
+
+.rating-errors strong {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.rating-errors ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.rating-errors li {
+  margin-bottom: 0.2rem;
 }
 
 /* Nutrition table */
@@ -117,6 +280,14 @@ body {
   background-color: #f2f2f2;
   font-weight: 600;
 }
+
+.note {
+  margin-top: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Energy cost */
 .energy-cost {
   margin-top: 2rem;
   background-color: #f0f9ff;
@@ -175,7 +346,7 @@ body {
   margin-top: 1rem;
 }
 
-
+/* Product metadata */
 .product-meta {
   margin-top: 1.5rem;
   text-align: left;
@@ -185,14 +356,16 @@ body {
   margin: 0.3rem 0;
 }
 
-footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #003d7a;
-  color: white;
-  margin-top: 3rem;
+.ingredients-section {
+  margin-top: 1rem;
 }
 
+#ingredients {
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+/* Allergens */
 .allergens-container {
   margin-top: 1rem;
   background-color: #fff3f3;
@@ -208,27 +381,6 @@ footer {
   margin-bottom: 0.2rem;
 }
 
-.low-rating-msg {
-  margin-top: 0.6rem;
-  font-size: 0.9rem;
-  color: #b30000;
-  background-color: #fff0f0;
-  border-left: 4px solid #d32f2f;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-}
-
-.rating-info-icon {
-  font-size: 1rem;
-  margin-left: 8px;
-  color: #555;
-  cursor: pointer;
-}
-
-.hidden {
-  display: none;
-}
-
 /* Highlight user allergens in ingredients */
 .allergen-highlight {
   background-color: #ffcccc;
@@ -238,6 +390,40 @@ footer {
   border-radius: 3px;
 }
 
-.rating-info-icon:hover {
-  color: #d32f2f;
+/* Generic hidden utility */
+.hidden {
+  display: none;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #003d7a;
+  color: white;
+  margin-top: 3rem;
+}
+
+/* Mobile */
+@media (max-width: 650px) {
+  .product-container {
+    margin: 1rem;
+    padding: 1.2rem;
+  }
+
+  .rating-overall {
+    align-items: flex-start;
+  }
+
+  .rating-score-number {
+    font-size: 2rem;
+  }
+
+  .rating-summary {
+    align-items: flex-end;
+  }
+
+  .nutrition-table {
+    overflow-x: auto;
+  }
 }

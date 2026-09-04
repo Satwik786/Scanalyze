@@ -12,7 +12,7 @@
 │   ├── db.js
 │   ├── server.js
 │   ├── import-products.js
-│   ├── check-product.js
+│   ├── enrich-product.js
 │   │
 │   ├── models
 │   │   ├── User.js

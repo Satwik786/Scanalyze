@@ -1,160 +1,592 @@
-import { calculateIngredientScore } from './utils/score-logic.js';
-import { getUserAllergens } from './utils/allergens.js'; // <-- import user allergens
+import { calculateProductRating } from './utils/score-logic.js';
+import { getUserAllergens } from './utils/allergens.js';
 
-// Utility Functions
 function displayNutrient(value, unit = '') {
-  return value !== undefined ? `${value} ${unit}` : '–';
+  return value !== undefined && value !== null && Number.isFinite(Number(value))
+    ? `${value} ${unit}`
+    : '–';
 }
 
 function toggleEnergyCost() {
   const details = document.getElementById('energy-cost-details');
-  details.classList.toggle('hidden');
+
+  if (details) {
+    details.classList.toggle('hidden');
+  }
 }
 
-function showNoRating() {
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function normalizeAllergen(value) {
+  if (typeof value !== 'string') return '';
+
+  return value
+    .toLowerCase()
+    .replace(/^en:/, '')
+    .replace(/[_-]+/g, ' ')
+    .trim();
+}
+
+function getEnergyKcal(nutriments = {}) {
+  const kcal =
+    Number(nutriments['energy-kcal_100g']);
+
+  if (Number.isFinite(kcal) && kcal >= 0) {
+    return kcal;
+  }
+
+  const kcalMl =
+    Number(nutriments['energy-kcal_100ml']);
+
+  if (Number.isFinite(kcalMl) && kcalMl >= 0) {
+    return kcalMl;
+  }
+
+  const kj =
+    Number(nutriments['energy_100g']);
+
+  if (Number.isFinite(kj) && kj >= 0) {
+    return kj / 4.184;
+  }
+
+  const kjMl =
+    Number(nutriments['energy_100ml']);
+
+  if (Number.isFinite(kjMl) && kjMl >= 0) {
+    return kjMl / 4.184;
+  }
+
+  return null;
+}
+
+function getFactorLabel(name) {
+  const labels = {
+    nutrition: 'Nutrition',
+    ingredients: 'Ingredients',
+    additives: 'Additives',
+    processing: 'Processing'
+  };
+
+  return labels[name] || name;
+}
+
+function getScoreClass(score) {
+  if (score === null || score === undefined) {
+    return '';
+  }
+
+  if (score >= 70) return 'rating-green';
+  if (score >= 50) return 'rating-orange';
+
+  return 'rating-red';
+}
+
+function renderRating(result) {
   const ratingContainer = document.getElementById('rating-score');
-  ratingContainer.innerHTML = `<strong>Rating:</strong> N/A`;
-  ratingContainer.classList.remove('rating-red', 'rating-orange', 'rating-green');
-}
 
-// Load Product Details
-async function loadProduct() {
-  const params = new URLSearchParams(location.search);
-  const code = params.get('code');
-  const identifier = localStorage.getItem('userIdentifier'); // <-- user identifier
-
-  if (!code) {
-    document.body.innerHTML = '<p>Product code missing.</p>';
+  if (!ratingContainer) {
     return;
   }
 
-  const productNameEl = document.getElementById('product-name');
-  productNameEl.textContent = 'Loading…';
+  ratingContainer.classList.remove(
+    'rating-red',
+    'rating-orange',
+    'rating-green'
+  );
+
+  if (result.score === null) {
+    ratingContainer.innerHTML = `
+      <strong>Rating:</strong> N/A
+      <p class="rating-note">
+        There is not enough reliable product information to calculate a rating.
+      </p>
+    `;
+
+    return;
+  }
+
+  ratingContainer.classList.add(getScoreClass(result.score));
+
+  const factorEntries = Object.entries(result.factors)
+    .filter(([, factor]) => factor !== null);
+
+  const factorHtml = factorEntries
+    .map(([name, factor]) => {
+      const reasons = factor.reasons?.length
+        ? `
+          <ul class="rating-factor-reasons">
+            ${factor.reasons
+              .map(reason => `<li>${escapeHtml(reason)}</li>`)
+              .join('')}
+          </ul>
+        `
+        : '';
+
+      return `
+        <div class="rating-factor">
+          <div class="rating-factor-header">
+            <span>
+              <strong>${getFactorLabel(name)}</strong>
+            </span>
+            <span>${factor.score}/100</span>
+          </div>
+
+          ${reasons}
+        </div>
+      `;
+    })
+    .join('');
+
+  const warningHtml = result.warnings?.length
+    ? `
+      <div class="rating-warnings">
+        <strong>Warnings</strong>
+        <ul>
+          ${result.warnings
+            .map(warning => `<li>${escapeHtml(warning.message)}</li>`)
+            .join('')}
+        </ul>
+      </div>
+    `
+    : '';
+
+  const errorHtml = result.errors?.length
+    ? `
+      <div class="rating-errors">
+        <strong>Rating issues</strong>
+        <ul>
+          ${result.errors
+            .map(error => `<li>${escapeHtml(error.message)}</li>`)
+            .join('')}
+        </ul>
+      </div>
+    `
+    : '';
+
+  ratingContainer.innerHTML = `
+    <div class="rating-overall">
+      <div>
+        <strong>Scanalyze Score</strong>
+        <div class="rating-score-number">
+          ${result.score}<span>/100</span>
+        </div>
+      </div>
+
+      <div class="rating-summary">
+        <strong>${escapeHtml(result.rating)}</strong>
+        <span>
+          Confidence: ${escapeHtml(result.confidence)}
+        </span>
+      </div>
+    </div>
+
+    <div class="rating-factors">
+      ${factorHtml}
+    </div>
+
+    ${warningHtml}
+    ${errorHtml}
+  `;
+}
+
+function renderAllergens(product, userAllergens) {
+  const allergensContainer =
+    document.getElementById('allergens-container');
+
+  if (!allergensContainer) {
+    return;
+  }
+
+  const productAllergens = Array.isArray(product.allergens_tags)
+    ? product.allergens_tags
+        .filter(item => typeof item === 'string')
+        .map(normalizeAllergen)
+        .filter(Boolean)
+    : [];
+
+  const normalizedUserAllergens = Array.isArray(userAllergens)
+    ? userAllergens
+        .filter(item => typeof item === 'string')
+        .map(normalizeAllergen)
+        .filter(Boolean)
+    : [];
+
+  const matchedAllergens = normalizedUserAllergens.filter(userAllergen =>
+    productAllergens.some(productAllergen =>
+      productAllergen === userAllergen ||
+      productAllergen.includes(userAllergen) ||
+      userAllergen.includes(productAllergen)
+    )
+  );
+
+  if (productAllergens.length === 0) {
+    allergensContainer.innerHTML = `
+      <p><strong>Allergens:</strong> None reported</p>
+    `;
+
+    return;
+  }
+
+  if (matchedAllergens.length > 0) {
+    allergensContainer.innerHTML = `
+      <p>
+        ⚠️ <strong>Personal allergen match:</strong>
+        ${matchedAllergens
+          .map(escapeHtml)
+          .join(', ')}
+      </p>
+
+      <p>
+        <strong>Reported allergens:</strong>
+        ${productAllergens
+          .map(escapeHtml)
+          .join(', ')}
+      </p>
+    `;
+
+    return;
+  }
+
+  allergensContainer.innerHTML = `
+    <p>
+      <strong>Reported allergens:</strong>
+      ${productAllergens
+        .map(escapeHtml)
+        .join(', ')}
+    </p>
+  `;
+}
+
+function renderIngredients(ingredients, userAllergens, productAllergens) {
+  const ingredientsElement =
+    document.getElementById('ingredients');
+
+  if (!ingredientsElement) {
+    return;
+  }
+
+  if (!ingredients || !ingredients.trim()) {
+    ingredientsElement.textContent = '–';
+    return;
+  }
+
+  let safeIngredients = escapeHtml(ingredients);
+
+  const normalizedUserAllergens = Array.isArray(userAllergens)
+    ? userAllergens
+        .filter(item => typeof item === 'string')
+        .map(normalizeAllergen)
+        .filter(Boolean)
+    : [];
+
+  const normalizedProductAllergens = Array.isArray(productAllergens)
+    ? productAllergens
+        .filter(item => typeof item === 'string')
+        .map(normalizeAllergen)
+        .filter(Boolean)
+    : [];
+
+  const allergensToHighlight = normalizedUserAllergens.filter(
+    userAllergen =>
+      normalizedProductAllergens.some(productAllergen =>
+        productAllergen === userAllergen ||
+        productAllergen.includes(userAllergen) ||
+        userAllergen.includes(productAllergen)
+      )
+  );
+
+  for (const allergen of allergensToHighlight) {
+    const escapedAllergen = escapeHtml(allergen);
+
+    const regex = new RegExp(
+      `\\b(${escapedAllergen.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b`,
+      'gi'
+    );
+
+    safeIngredients = safeIngredients.replace(
+      regex,
+      '<span class="allergen-highlight">$1</span>'
+    );
+  }
+
+  ingredientsElement.innerHTML = safeIngredients;
+}
+
+function renderMissingMetadata() {
+  ['quantity', 'categories', 'ingredients'].forEach(id => {
+    const element = document.getElementById(id);
+
+    if (!element) {
+      return;
+    }
+
+    if (!element.textContent || element.textContent.trim() === '–') {
+      element.parentElement.style.display = 'none';
+    }
+  });
+}
+
+function renderEnergyCost(kcal) {
+  const energyCostContainer =
+    document.getElementById('energy-cost');
+
+  if (!energyCostContainer) {
+    return;
+  }
+
+  if (kcal === null || kcal === undefined || kcal <= 0) {
+    energyCostContainer.style.display = 'none';
+    return;
+  }
+
+  const weight = 70;
+
+  const met = {
+    walk: 3.5,
+    cycle: 7,
+    run: 9.8
+  };
+
+  const calcBurnTime = metValue =>
+    Math.round((kcal * 60) / (metValue * weight));
+
+  const walkElement = document.getElementById('burn-walk');
+  const cycleElement = document.getElementById('burn-cycle');
+  const runElement = document.getElementById('burn-run');
+
+  if (walkElement) {
+    walkElement.textContent = `${calcBurnTime(met.walk)} min`;
+  }
+
+  if (cycleElement) {
+    cycleElement.textContent = `${calcBurnTime(met.cycle)} min`;
+  }
+
+  if (runElement) {
+    runElement.textContent = `${calcBurnTime(met.run)} min`;
+  }
+}
+
+async function loadUserAllergens() {
+  try {
+    const allergens = await getUserAllergens();
+
+    return Array.isArray(allergens)
+      ? allergens
+      : [];
+  } catch (error) {
+    console.error('Failed to load user allergens:', error);
+    return [];
+  }
+}
+
+async function loadProduct() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code');
+  const identifier = localStorage.getItem('userIdentifier');
+
+  if (!code || !/^\d+$/.test(code)) {
+    document.body.innerHTML = '<p>Invalid product code.</p>';
+    return;
+  }
+
+  const productNameElement =
+    document.getElementById('product-name');
+
+  if (productNameElement) {
+    productNameElement.textContent = 'Loading…';
+  }
 
   try {
-    // Fetch product data
-    const res = await fetch(`/api/product/${code}?identifier=${encodeURIComponent(identifier || '')}`);
-    const json = await res.json();
-    const p = json.product;
+    const url =
+      `/api/product/${encodeURIComponent(code)}` +
+      `?identifier=${encodeURIComponent(identifier || '')}`;
 
-    if (!p) {
+    const response = await fetch(url);
+
+    let json;
+
+    try {
+      json = await response.json();
+    } catch {
+      throw new Error('The server returned an invalid response.');
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        json?.error ||
+        `Failed to load product (${response.status}).`
+      );
+    }
+
+    const product = json?.product;
+
+    if (!product) {
       document.body.innerHTML = '<p>Product not found.</p>';
       return;
     }
 
-    const ratingContainer = document.getElementById('rating-score');
+    const productImage =
+      document.getElementById('product-img');
 
-    // Basic info
-    document.getElementById('product-img').src = p.image_front_url || 'https://via.placeholder.com/200';
-    productNameEl.textContent = p.product_name || 'Unnamed';
-    document.getElementById('product-brand').textContent = p.brands || 'Unknown brand';
+    if (productImage) {
+      productImage.src =
+        product.image_front_url ||
+        'https://via.placeholder.com/200';
 
-    // Nutritional info
-    const n = p.nutriments || {};
-    const kcal = n['energy-kcal_100g'] ?? n['energy_100g'];
-    document.getElementById('nutr-energy').textContent = displayNutrient(kcal, 'kcal');
-    document.getElementById('nutr-fat').textContent = displayNutrient(n.fat_100g, 'g');
-    document.getElementById('nutr-sugars').textContent = displayNutrient(n.sugars_100g, 'g');
-    document.getElementById('nutr-salt').textContent = displayNutrient(n.salt_100g, 'g');
-
-    const nutrNoteEl = document.getElementById('nutr-note');
-    const nutrValues = ['energy-kcal_100g', 'energy_100g', 'fat_100g', 'sugars_100g', 'salt_100g'];
-    const hasAnyNutrition = nutrValues.some(key => n[key] !== undefined);
-
-    // Ingredients & metadata
-    const ingredients = p.ingredients_text || '';
-    if (!ingredients.trim() || (!hasAnyNutrition && !ingredients.trim())) {
-      nutrNoteEl.textContent = 'N/A – Insufficient nutritional data or missing ingredient info.';
+      productImage.alt =
+        product.product_name || 'Product image';
     }
 
-    document.getElementById('quantity').textContent = p.quantity || '–';
-    document.getElementById('categories').textContent = p.categories || '–';
+    if (productNameElement) {
+      productNameElement.textContent =
+        product.product_name || 'Unnamed product';
+    }
 
-    // Get user allergens
-    const userAllergens = await getUserAllergens();
-    const productAllergens = (p.allergens_tags || []).map(a => a.replace('en:', '').replace(/_/g, ' '));
+    const brandElement =
+      document.getElementById('product-brand');
 
-    // Highlight allergens in ingredients
-    let highlightedIngredients = ingredients;
-    userAllergens.forEach(allergen => {
-      if (productAllergens.includes(allergen)) {
-        const regex = new RegExp(`\\b(${allergen})\\b`, 'gi');
-        highlightedIngredients = highlightedIngredients.replace(regex, '<span class="allergen-highlight">$1</span>');
+    if (brandElement) {
+      brandElement.textContent =
+        product.brands || 'Unknown brand';
+    }
+
+    const nutriments =
+      product.nutriments &&
+      typeof product.nutriments === 'object'
+        ? product.nutriments
+        : {};
+
+    const kcal = getEnergyKcal(nutriments);
+
+    const energyElement =
+      document.getElementById('nutr-energy');
+
+    if (energyElement) {
+      energyElement.textContent =
+        displayNutrient(kcal, 'kcal');
+    }
+
+    const fatElement =
+      document.getElementById('nutr-fat');
+
+    if (fatElement) {
+      fatElement.textContent =
+        displayNutrient(nutriments.fat_100g, 'g');
+    }
+
+    const sugarsElement =
+      document.getElementById('nutr-sugars');
+
+    if (sugarsElement) {
+      sugarsElement.textContent =
+        displayNutrient(nutriments.sugars_100g, 'g');
+    }
+
+    const saltElement =
+      document.getElementById('nutr-salt');
+
+    if (saltElement) {
+      saltElement.textContent =
+        displayNutrient(nutriments.salt_100g, 'g');
+    }
+
+    const nutritionNote =
+      document.getElementById('nutr-note');
+
+    const hasNutritionData =
+      Object.keys(nutriments).some(key =>
+        key.endsWith('_100g') &&
+        Number.isFinite(Number(nutriments[key]))
+      );
+
+    if (nutritionNote) {
+      nutritionNote.textContent = hasNutritionData
+        ? ''
+        : 'Some nutritional information is unavailable.';
+    }
+
+    const quantityElement =
+      document.getElementById('quantity');
+
+    if (quantityElement) {
+      quantityElement.textContent =
+        product.quantity || '–';
+    }
+
+    const categoriesElement =
+      document.getElementById('categories');
+
+    if (categoriesElement) {
+      categoriesElement.textContent =
+        Array.isArray(product.categories_tags_en)
+          ? product.categories_tags_en.join(', ')
+          : product.categories || '–';
+    }
+
+    const ingredients =
+      typeof product.ingredients_text === 'string'
+        ? product.ingredients_text.trim()
+        : '';
+
+    const productAllergens =
+      Array.isArray(product.allergens_tags)
+        ? product.allergens_tags
+        : [];
+
+    const userAllergens =
+      await loadUserAllergens();
+
+    renderIngredients(
+      ingredients,
+      userAllergens,
+      productAllergens
+    );
+
+    renderAllergens(
+      product,
+      userAllergens
+    );
+
+    const rating = calculateProductRating(
+      product,
+      {
+        userAllergens
       }
-    });
-    document.getElementById('ingredients').innerHTML = highlightedIngredients || '–';
+    );
 
-    // ⚠️ Show warning inside allergens-container
-    const allergensContainer = document.getElementById('allergens-container');
-    if (productAllergens.length === 0) {
-      allergensContainer.style.display = 'none';
-    } else {
-      const matchedAllergens = userAllergens.filter(a => productAllergens.includes(a));
-      allergensContainer.innerHTML = matchedAllergens.length > 0
-        ? `
-          ⚠️ <strong>Warning:</strong> This product contains ingredients you're allergic to: ${matchedAllergens.join(', ')}
-          <br><strong>Allergens:</strong> ${productAllergens.join(', ') || '–'}
-        `
-        : `<p><strong>Allergens:</strong> ${productAllergens.join(', ') || '–'}</p>`;
-    }
+    renderRating(rating);
 
-    ['quantity', 'categories', 'ingredients'].forEach(id => {
-      const el = document.getElementById(id);
-      if (!el.textContent || el.textContent.trim() === '–') {
-        el.parentElement.style.display = 'none';
-      }
-    });
+    renderEnergyCost(kcal);
 
-    // Ingredient Rating
-    if (!ingredients.trim()) {
-      showNoRating();
-    } else {
-      let score = calculateIngredientScore(ingredients, n);
-      if (score < 1.0) score = 0.5;
+    renderMissingMetadata();
 
-      ratingContainer.classList.remove('rating-red', 'rating-orange', 'rating-green');
-      const infoIcon = `<i id="low-rating-toggle" class="fas fa-info-circle rating-info-icon" title="Why this rating?"></i>`;
+  } catch (error) {
+    console.error('Error loading product:', error);
 
-      if (score < 2.0) ratingContainer.classList.add('rating-red');
-      else if (score < 3.5) ratingContainer.classList.add('rating-orange');
-      else ratingContainer.classList.add('rating-green');
-
-      ratingContainer.innerHTML = `<strong>Rating:</strong> ${score.toFixed(1)} / 5
-        ${score < 3.0 ? infoIcon : ''}
-        <p class="rating-note">Rating based on ingredient safety.</p>`;
-
-      if (score < 3.0) {
-        document.getElementById('low-rating-msg').classList.add('hidden');
-        setTimeout(() => {
-          const toggle = document.getElementById('low-rating-toggle');
-          toggle?.addEventListener('click', () => {
-            document.getElementById('low-rating-msg').classList.toggle('hidden');
-          });
-        }, 0);
-      }
-    }
-
-    // Energy Cost
-    const energyCostContainer = document.getElementById('energy-cost');
-    if (!kcal) {
-      energyCostContainer.style.display = 'none';
-    } else {
-      const weight = 70;
-      const met = { walk: 3.5, cycle: 7, run: 9.8 };
-      const calcBurnTime = metValue => Math.round((kcal * 60) / (metValue * weight));
-      document.getElementById('burn-walk').textContent = `${calcBurnTime(met.walk)} min`;
-      document.getElementById('burn-cycle').textContent = `${calcBurnTime(met.cycle)} min`;
-      document.getElementById('burn-run').textContent = `${calcBurnTime(met.run)} min`;
-    }
-
-  } catch (err) {
-    console.error(err);
-    document.body.innerHTML = '<p>Error loading product details.</p>';
+    document.body.innerHTML = `
+      <div class="product-error">
+        <h2>Unable to load product</h2>
+        <p>
+          ${escapeHtml(
+            error?.message ||
+            'Something went wrong while loading this product.'
+          )}
+        </p>
+      </div>
+    `;
   }
 }
 
-// Event listeners
-document.getElementById('burn-toggle')?.addEventListener('click', toggleEnergyCost);
+document
+  .getElementById('burn-toggle')
+  ?.addEventListener('click', toggleEnergyCost);
 
-// Load product
 loadProduct();
