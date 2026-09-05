@@ -60,10 +60,17 @@ const FIELDS = [
   "categories_tags_en",
   "image_front_url",
   "image_front_small_url",
+
   "ingredients_text",
   "ingredients_tags",
   "ingredients_analysis_tags",
+  "additives_tags",
   "allergens_tags",
+
+  "nutriments",
+  "nutrition_grades",
+  "nutriscore_data",
+  "nova_group",
 ].join(",");
 
 function sleep(ms) {
@@ -106,7 +113,9 @@ function buildSearchNames(name, brand, categories) {
     const words = normalizedName.split(" ");
 
     for (let i = 1; i <= words.length; i++) {
-      searchNames.add(words.slice(0, i).join(" "));
+      searchNames.add(
+        words.slice(0, i).join(" ")
+      );
     }
   }
 
@@ -115,18 +124,30 @@ function buildSearchNames(name, brand, categories) {
 
     const brandWords = normalizedBrand.split(" ");
 
-    for (let i = 1; i <= brandWords.length; i++) {
-      searchNames.add(brandWords.slice(0, i).join(" "));
+    for (
+      let i = 1;
+      i <= brandWords.length;
+      i++
+    ) {
+      searchNames.add(
+        brandWords.slice(0, i).join(" ")
+      );
     }
   }
 
   if (normalizedName && normalizedBrand) {
-    searchNames.add(`${normalizedBrand} ${normalizedName}`);
-    searchNames.add(`${normalizedName} ${normalizedBrand}`);
+    searchNames.add(
+      `${normalizedBrand} ${normalizedName}`
+    );
+
+    searchNames.add(
+      `${normalizedName} ${normalizedBrand}`
+    );
   }
 
   for (const category of categories) {
-    const normalizedCategory = normalize(category);
+    const normalizedCategory =
+      normalize(category);
 
     if (normalizedCategory) {
       searchNames.add(normalizedCategory);
@@ -145,14 +166,21 @@ function createProductDocument(product) {
     return null;
   }
 
-  const categories = cleanArray(product.categories_tags_en);
+  const categories = cleanArray(
+    product.categories_tags_en
+  );
 
   const ingredientsTags = cleanArray(
     product.ingredients_tags
   );
 
-  const ingredientsAnalysisTags = cleanArray(
-    product.ingredients_analysis_tags
+  const ingredientsAnalysisTags =
+    cleanArray(
+      product.ingredients_analysis_tags
+    );
+
+  const additivesTags = cleanArray(
+    product.additives_tags
   );
 
   const allergensTags = cleanArray(
@@ -185,8 +213,33 @@ function createProductDocument(product) {
     ingredients_analysis_tags:
       ingredientsAnalysisTags,
 
+    additives_tags:
+      additivesTags,
+
     allergens_tags:
       allergensTags,
+
+    nutriments:
+      product.nutriments &&
+      typeof product.nutriments === "object"
+        ? product.nutriments
+        : {},
+
+    nutrition_grades:
+      clean(product.nutrition_grades),
+
+    nutriscore_data:
+      product.nutriscore_data &&
+      typeof product.nutriscore_data === "object"
+        ? product.nutriscore_data
+        : null,
+
+    nova_group:
+      Number.isFinite(
+        Number(product.nova_group)
+      )
+        ? Number(product.nova_group)
+        : null,
 
     country: "india",
     source: "openfoodfacts",
@@ -195,23 +248,29 @@ function createProductDocument(product) {
   };
 }
 
-async function fetchCategoryPage(category, page) {
-  const response = await axios.get(OFF_URL, {
-    params: {
-      categories_tags_en: category,
-      countries_tags_en: "india",
-      page_size: PAGE_SIZE,
-      page,
-      fields: FIELDS,
-    },
+async function fetchCategoryPage(
+  category,
+  page
+) {
+  const response = await axios.get(
+    OFF_URL,
+    {
+      params: {
+        categories_tags_en: category,
+        countries_tags_en: "india",
+        page_size: PAGE_SIZE,
+        page,
+        fields: FIELDS,
+      },
 
-    headers: {
-      "User-Agent": USER_AGENT,
-      Accept: "application/json",
-    },
+      headers: {
+        "User-Agent": USER_AGENT,
+        Accept: "application/json",
+      },
 
-    timeout: 15000,
-  });
+      timeout: 15000,
+    }
+  );
 
   return response.data;
 }
@@ -227,18 +286,25 @@ async function importCategory(category) {
     page <= MAX_PAGES_PER_CATEGORY;
     page++
   ) {
-    console.log(`Fetching page ${page}...`);
+    console.log(
+      `Fetching page ${page}...`
+    );
 
     try {
-      const data = await fetchCategoryPage(
-        category,
-        page
-      );
+      const data =
+        await fetchCategoryPage(
+          category,
+          page
+        );
 
-      const products = data.products || [];
+      const products =
+        data.products || [];
 
       if (!products.length) {
-        console.log("No more products found.");
+        console.log(
+          "No more products found."
+        );
+
         break;
       }
 
@@ -246,14 +312,17 @@ async function importCategory(category) {
 
       for (const product of products) {
         const document =
-          createProductDocument(product);
+          createProductDocument(
+            product
+          );
 
         if (!document) continue;
 
         operations.push({
           updateOne: {
             filter: {
-              barcode: document.barcode,
+              barcode:
+                document.barcode,
             },
 
             update: {
@@ -285,8 +354,13 @@ async function importCategory(category) {
         );
       }
 
-      if (page < MAX_PAGES_PER_CATEGORY) {
-        await sleep(REQUEST_DELAY);
+      if (
+        page <
+        MAX_PAGES_PER_CATEGORY
+      ) {
+        await sleep(
+          REQUEST_DELAY
+        );
       }
     } catch (error) {
       const status =
@@ -325,9 +399,15 @@ async function main() {
     await connectDB();
 
     console.log("");
-    console.log("======================================");
-    console.log(" Scanalyze Product Index Importer");
-    console.log("======================================");
+    console.log(
+      "======================================"
+    );
+    console.log(
+      " Scanalyze Product Index Importer"
+    );
+    console.log(
+      "======================================"
+    );
     console.log("");
 
     console.log(
@@ -348,23 +428,35 @@ async function main() {
 
     for (const category of CATEGORIES) {
       const affected =
-        await importCategory(category);
+        await importCategory(
+          category
+        );
 
       totalAffected += affected;
 
-      await sleep(CATEGORY_DELAY);
+      await sleep(
+        CATEGORY_DELAY
+      );
     }
 
     const count =
-      await ProductIndex.countDocuments({
-        active: true,
-        country: "india",
-      });
+      await ProductIndex.countDocuments(
+        {
+          active: true,
+          country: "india",
+        }
+      );
 
     console.log("");
-    console.log("======================================");
-    console.log(" Import complete");
-    console.log("======================================");
+    console.log(
+      "======================================"
+    );
+    console.log(
+      " Import complete"
+    );
+    console.log(
+      "======================================"
+    );
 
     console.log(
       `Total records affected: ${totalAffected}`

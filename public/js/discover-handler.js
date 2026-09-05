@@ -1,4 +1,5 @@
-import { calculateIngredientScore } from './utils/score-logic.js';
+import { calculateProductRating } from './utils/score-logic.js';
+
 import {
   getUserAllergens,
   filterProductsByAllergens
@@ -23,14 +24,19 @@ if (guestMode) {
 }
 
 if (!guestMode && !userIdentifier) {
-  console.error("User not logged in.");
+  console.error(
+    "User not logged in."
+  );
 
-  window.location.href = "/login";
+  window.location.href =
+    "/login";
 }
 
 if (userName) {
   const welcomeEl =
-    document.getElementById("welcome-message");
+    document.getElementById(
+      "welcome-message"
+    );
 
   if (welcomeEl) {
     welcomeEl.textContent =
@@ -42,7 +48,9 @@ let allProducts = [];
 
 function showLoading() {
   const container =
-    document.getElementById("discoverResults");
+    document.getElementById(
+      "discoverResults"
+    );
 
   if (container) {
     container.innerHTML =
@@ -60,7 +68,8 @@ async function loadDiscoverProducts() {
           userIdentifier
         )}`;
 
-    const res = await fetch(url);
+    const res =
+      await fetch(url);
 
     if (!res.ok) {
       throw new Error(
@@ -68,11 +77,13 @@ async function loadDiscoverProducts() {
       );
     }
 
-    const data = await res.json();
+    const data =
+      await res.json();
 
-    allProducts = Array.isArray(data)
-      ? data
-      : data.products || [];
+    allProducts =
+      Array.isArray(data)
+        ? data
+        : data.products || [];
 
     console.log(
       "Discover products:",
@@ -87,7 +98,9 @@ async function loadDiscoverProducts() {
     );
 
     const container =
-      document.getElementById("discoverResults");
+      document.getElementById(
+        "discoverResults"
+      );
 
     if (container) {
       container.innerHTML =
@@ -105,11 +118,12 @@ async function searchProducts(query) {
       return;
     }
 
-    const res = await fetch(
-      `/api/local-search?q=${encodeURIComponent(
-        query
-      )}`
-    );
+    const res =
+      await fetch(
+        `/api/local-search?q=${encodeURIComponent(
+          query
+        )}`
+      );
 
     if (!res.ok) {
       throw new Error(
@@ -117,7 +131,8 @@ async function searchProducts(query) {
       );
     }
 
-    const data = await res.json();
+    const data =
+      await res.json();
 
     allProducts =
       data.products || [];
@@ -143,7 +158,9 @@ async function searchProducts(query) {
 
 function getTags(product) {
   const ingredientTags =
-    Array.isArray(product.ingredients_tags)
+    Array.isArray(
+      product.ingredients_tags
+    )
       ? product.ingredients_tags
       : [];
 
@@ -165,34 +182,60 @@ function getTags(product) {
 }
 
 function isVegetarian(product) {
-  const tags = getTags(product);
+  const tags =
+    getTags(product);
 
   const explicitlyNonVegetarian =
-    tags.includes("en:non-vegetarian") ||
-    tags.includes("en:non_vegetarian") ||
-    tags.includes("non-vegetarian") ||
-    tags.includes("non_vegetarian");
+    tags.includes(
+      "en:non-vegetarian"
+    ) ||
+    tags.includes(
+      "en:non_vegetarian"
+    ) ||
+    tags.includes(
+      "non-vegetarian"
+    ) ||
+    tags.includes(
+      "non_vegetarian"
+    );
 
-  if (explicitlyNonVegetarian) {
+  if (
+    explicitlyNonVegetarian
+  ) {
     return false;
   }
 
   const explicitlyVegetarian =
-    tags.includes("en:vegetarian") ||
-    tags.includes("vegetarian") ||
-    tags.includes("en:vegetarian-status-yes");
+    tags.includes(
+      "en:vegetarian"
+    ) ||
+    tags.includes(
+      "vegetarian"
+    ) ||
+    tags.includes(
+      "en:vegetarian-status-yes"
+    );
 
   return explicitlyVegetarian;
 }
 
 function isNonVegetarian(product) {
-  const tags = getTags(product);
+  const tags =
+    getTags(product);
 
   return (
-    tags.includes("en:non-vegetarian") ||
-    tags.includes("en:non_vegetarian") ||
-    tags.includes("non-vegetarian") ||
-    tags.includes("non_vegetarian")
+    tags.includes(
+      "en:non-vegetarian"
+    ) ||
+    tags.includes(
+      "en:non_vegetarian"
+    ) ||
+    tags.includes(
+      "non-vegetarian"
+    ) ||
+    tags.includes(
+      "non_vegetarian"
+    )
   );
 }
 
@@ -210,17 +253,23 @@ async function applyFilters() {
     filtered.length
   );
 
-  if (selectedDiet === "veg") {
+  if (
+    selectedDiet === "veg"
+  ) {
     filtered =
-      filtered.filter(product =>
-        isVegetarian(product)
+      filtered.filter(
+        product =>
+          isVegetarian(product)
       );
   }
 
-  if (selectedDiet === "nonveg") {
+  if (
+    selectedDiet === "nonveg"
+  ) {
     filtered =
-      filtered.filter(product =>
-        isNonVegetarian(product)
+      filtered.filter(
+        product =>
+          isNonVegetarian(product)
       );
   }
 
@@ -284,6 +333,46 @@ function getProductImage(product) {
   );
 }
 
+function getRating(product) {
+  try {
+    const rating =
+      calculateProductRating(product);
+
+    if (!rating) {
+      return null;
+    }
+
+    const score =
+      Number.isFinite(rating.score)
+        ? rating.score
+        : Number.isFinite(rating.overall?.score)
+          ? rating.overall.score
+          : null;
+
+    if (!Number.isFinite(score)) {
+      return null;
+    }
+
+    return {
+      ...rating,
+      score,
+      label:
+        rating.label ||
+        rating.rating ||
+        rating.overall?.label ||
+        rating.overall?.rating ||
+        "Unrated",
+    };
+  } catch (error) {
+    console.error(
+      "Rating calculation error:",
+      error
+    );
+
+    return null;
+  }
+}
+
 function displayDiscover(products) {
   const container =
     document.getElementById(
@@ -305,7 +394,9 @@ function displayDiscover(products) {
 
   products.forEach(product => {
     const card =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     card.className =
       "product-card";
@@ -322,35 +413,15 @@ function displayDiscover(products) {
     const image =
       getProductImage(product);
 
-    const ingredients =
-      product.ingredients_text || "";
+    const rating =
+      getRating(product);
 
-    const nutriments =
-      product.nutriments || {};
+    let ratingText =
+      "Not enough data";
 
-    let ratingText = "N/A";
-
-    if (ingredients.trim()) {
-      try {
-        const rating =
-          calculateIngredientScore(
-            ingredients,
-            nutriments
-          );
-
-        if (
-          typeof rating === "number" &&
-          Number.isFinite(rating)
-        ) {
-          ratingText =
-            `${rating.toFixed(1)} / 5`;
-        }
-      } catch (error) {
-        console.error(
-          "Rating calculation error:",
-          error
-        );
-      }
+    if (rating) {
+      ratingText =
+        `${rating.score.toFixed(1)}/100 ${rating.label}`;
     }
 
     const productUrl =
@@ -382,7 +453,9 @@ function displayDiscover(products) {
       </a>
     `;
 
-    container.appendChild(card);
+    container.appendChild(
+      card
+    );
   });
 }
 

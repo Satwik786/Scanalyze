@@ -32,7 +32,13 @@ router.get("/", async (req, res) => {
         ingredients_text: 1,
         ingredients_tags: 1,
         ingredients_analysis_tags: 1,
+        additives_tags: 1,
         allergens_tags: 1,
+
+        nutriments: 1,
+        nutrition_grades: 1,
+        nutriscore_data: 1,
+        nova_group: 1,
 
         _id: 0,
       }
@@ -55,7 +61,8 @@ router.get("/", async (req, res) => {
     );
 
     res.status(500).json({
-      error: "Failed to search Scanalyze product database",
+      error:
+        "Failed to search Scanalyze product database",
     });
   }
 });

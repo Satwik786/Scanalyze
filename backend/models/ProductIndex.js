@@ -52,6 +52,11 @@ const productIndexSchema = new mongoose.Schema(
       default: [],
     },
 
+    additives_tags: {
+      type: [String],
+      default: [],
+    },
+
     allergens_tags: {
       type: [String],
       default: [],
@@ -60,6 +65,21 @@ const productIndexSchema = new mongoose.Schema(
     nutriments: {
       type: mongoose.Schema.Types.Mixed,
       default: {},
+    },
+
+    nutrition_grades: {
+      type: String,
+      default: "",
+    },
+
+    nutriscore_data: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+
+    nova_group: {
+      type: Number,
+      default: null,
     },
 
     country: {
